@@ -16,10 +16,10 @@ In this tutorial series, you will learn how to build a first-class API definitio
 
 <!-- TOC -->
 
-- [1. Getting Started with API Connect Developer Toolkit](../getting-started/README.md)
-- [2. Build conditional flows for dynamic API execution](../conditional/README.md)
-- [3. Write JavaScript to enrich API payloads](../gatewayscript/README.md)
-- [4. Handling API Errors](../error-handling/README.md)
-- [5. Protect access to API services with Auth0 & JWT](../jwt/README.md)
-- [6. Protect access to APIs using OpenID Connect](../openid/README.md)
-- [7. Packaging APIs and Enforcing Rate Limits](../bluemix/README.md)
+- [1. Getting Started with API Connect Developer Toolkit](../master/getting-started/README.md)
+- [2. Build conditional flows for dynamic API execution](../master/conditional/README.md)
+- [3. Write JavaScript to enrich API payloads](../master/gatewayscript/README.md)
+- [4. Handling API Errors](../master/error-handling/README.md)
+- [5. Protect access to API services with Auth0 & JWT](../master/jwt/README.md)
+- [6. Protect access to APIs using OpenID Connect](../master/openid/README.md)
+- [7. Packaging APIs and Enforcing Rate Limits](../master/bluemix/README.md)
