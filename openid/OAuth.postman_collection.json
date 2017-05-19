@@ -1,0 +1,579 @@
+{
+	"variables": [],
+	"info": {
+		"name": "APIc OAuth",
+		"_postman_id": "b0e17185-43f5-d5b3-809e-baadbd116cfe",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "OAuth Password",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_id",
+							"value": "default",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_secret",
+							"value": "SECRET",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "scope",
+							"value": "pokemon",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "username",
+							"value": "spoon",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "password",
+							"value": "spoon",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Implicit (public)",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/authorize",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"disabled": false,
+							"key": "response_type",
+							"value": "token",
+							"enabled": true,
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "client_id",
+							"value": "default",
+							"enabled": true,
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "redirect_uri",
+							"value": "https://www.getpostman.com/oauth2/callback",
+							"enabled": true,
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "scope",
+							"value": "pokemon",
+							"enabled": true,
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "SECRET",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Application (client_cred)",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "scope",
+							"value": "pokemon",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_id",
+							"value": "default",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_secret",
+							"value": "SECRET",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": "client_credentails grant type"
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Token List",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/issued",
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-ibm-client-id",
+						"value": "default",
+						"description": ""
+					},
+					{
+						"key": "x-ibm-client-secret",
+						"value": "SECRET",
+						"description": ""
+					},
+					{
+						"key": "APIm-Debug",
+						"value": "true",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth App Revocation",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/issued?client-id=default",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "x-ibm-client-id",
+						"value": "default",
+						"description": ""
+					},
+					{
+						"key": "x-ibm-client-secret",
+						"value": "SECRET",
+						"description": ""
+					},
+					{
+						"key": "//APIm-Debug",
+						"value": "true",
+						"description": "",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Refresh Token",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZGVmYXVsdDpTRUNSRVQ=",
+						"description": ""
+					},
+					{
+						"key": "//APIm-Debug",
+						"value": "true",
+						"description": "",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "refresh_token",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "refresh_token",
+							"value": "AAGOqmB3HslZFaYPuIJpaEavsK3L-zwOO-YezXL5WNHfERBDS7-Df-BumfNFNHnjSpWmc3Guv19QNWjRFKrX-N9Myg_UlDF3sSwwRN92vINzqwSTgKEUVV9ZSTL_BlKWOqf15ZlBIzXaT88sekzUIuGn",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_id",
+							"value": "default",
+							"type": "text",
+							"enabled": false
+						},
+						{
+							"key": "client_secret",
+							"value": "SECRET",
+							"type": "text",
+							"enabled": false
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Introspection",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/introspect",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "token_type_hint",
+							"value": "access_token",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_id",
+							"value": "default",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_secret",
+							"value": "SECRET",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "token",
+							"value": "AAEHZGVmYXVsdLZr9ZFchgVOv3xQ2a6m6BkkZ5HbCFXlKFhleB7t2csTNwJmkuaHuEi33kUclrlKCa45GzTeGPGp_WWJ6BMQSfaXmB_F40fIPqrmk7ly0zNWtg4GEVWnmSiVcDKuLuIGvA",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth AC to Token",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://www.getpostman.com/oauth2/callback",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_id",
+							"value": "default",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_secret",
+							"value": "SECRET",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "code",
+							"value": "AAJx-qOefDVw9TDNZpQmEU2PuMnBgkekph_ePZZw497tfXVmp6vhH4fhpRZq_lCjJY4t0kgVo2kyX5wpV5NyJhef5DWcEVfn2ITNvnf9LJ31q7GhYBuyDxGR-yuC2Ao9oSnQLgSTnGiv6fhxTNYSzHaM",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": "This converts the temporary authorization code to token"
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Access Code",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/authorize",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					},
+					{
+						"key": "APIm-Debug",
+						"value": "true",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "response_type",
+							"value": "code",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_id",
+							"value": "default",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_secret",
+							"value": "SECRET",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://www.getpostman.com/oauth2/callback",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "scope",
+							"value": "pokemon",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OIDC Access Code",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"disabled": false,
+							"key": "response_type",
+							"value": "code",
+							"enabled": true,
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "client_id",
+							"value": "default",
+							"enabled": true,
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "redirect_uri",
+							"value": "https://www.getpostman.com/oauth2/callback",
+							"enabled": true,
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "scope",
+							"value": "openid pokemon",
+							"enabled": true,
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OIDC Password",
+			"request": {
+				"url": "https://127.0.0.1:4001/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_id",
+							"value": "default",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "client_secret",
+							"value": "SECRET",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "scope",
+							"value": "pokemon openid",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "username",
+							"value": "spoon",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "password",
+							"value": "spoon",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "APIm-Debug",
+							"value": "true",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,81 @@
+swagger: '2.0'
+info:
+  x-ibm-name: utility
+  title: utility
+  version: 1.0.0
+schemes:
+  - https
+host: $(catalog.host)
+basePath: /utility
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions: {}
+security:
+  - {}
+x-ibm-configuration:
+  testable: true
+  enforced: true
+  cors:
+    enabled: true
+  assembly:
+    execute:
+      - operation-switch:
+          title: operation-switch
+          case:
+            - operations:
+                - verb: get
+                  path: '/basic-auth/{username}/{password}'
+              execute:
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "var reqauth = apim.getvariable('request.authorization').split(' ');\nvar splitval = new Buffer((reqauth[1] || ''), 'base64').toString('utf8').split(':');\nvar username = splitval[0] || '';\nvar password = splitval[1] || '';\napim.console.debug('user credential : [' + username + ':' + password + ']');\nif (username === apim.getvariable('request.parameters.username') && password === apim.getvariable('request.parameters.password')) {\n\tsession.output.write({ \"authenticatedUser\": username });\n\tapim.setvariable('message.headers.api-authenticated-credential', 'cn=' + username + ',email=' + username + '@poon.com');\n\tapim.setvariable('message.status.code', 200);\n\tapim.output('application/json');\n}\nelse {\n\tapim.setvariable('message.status.code', 401);\n}"
+            - operations:
+                - verb: get
+                  path: /ping
+              execute:
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: |-
+                      session.output.write({"message":"hello world!"});
+                      apim.output("application/json");
+          otherwise: []
+          version: 1.0.0
+    catch: []
+  gateway: datapower-gateway
+paths:
+  /ping:
+    get:
+      responses:
+        '200':
+          description: 200 OK
+  '/basic-auth/{username}/{password}':
+    get:
+      responses:
+        '200':
+          description: 200 OK
+    parameters:
+      - $ref: '#/parameters/username'
+      - $ref: '#/parameters/password'
+      - $ref: '#/parameters/Authorization'
+definitions: {}
+tags: []
+parameters:
+  username:
+    name: username
+    type: string
+    required: true
+    in: path
+  password:
+    name: password
+    type: string
+    required: true
+    in: path
+  Authorization:
+    name: Authorization
+    type: string
+    required: false
+    in: header
