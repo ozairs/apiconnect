@@ -4,23 +4,14 @@
 * [Ozair Sheikh](https://github.com/ozairs)
 
 **Prerequisites**
+* API Connect Developer Toolkit 5.0.7.1
+* Import the API definitions file from **https://github.com/ozairs/apiconnect/blob/master/gatewayscript/weather-provider-api_1.0.0.yaml**. See instructions [here](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.apionprem.doc/create_api_swagger.html)
 
-If you did not complete the previous tutorial from the [series](#01-getting-started-with-api-connect-developer-toolkit), perform the following steps:
-1. Download the project from [here](https://github.com/ozairs/apiconnect), either using git command-line command (ie `git clone https://github.com/ozairs/apiconnect`) or the ZIP file from the Web browser and install it on your local system. Make a note of this location.
-2. Create a directory for your project in the same location as the cloned project (`<path>/apiconnect`) and open the API designer.
-	```
-	cd apiconnect
-	mkdir apic-workspace
-	cd apic-workspace
-	apic edit
-	```
-3. Import the API definitions file from **<path>/apiconnect/gatewayscript/pokemon_1.0.0.yaml**. See instructions [here](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.apionprem.doc/create_api_swagger.html)
+In this tutorial, you will learn how to modify the API payload / headers using JavaScript by configuring a GatewayScript policy.
 
-In this tutorial, you will learn how to alter the API payload / headers using JavaScript by configuring a GatewayScript policy.
+**Instructions:** 
 
-This tutorial is based on the tutorial series available [here](#01-getting-started-with-api-connect-developer-toolkit)
-
-1. Drag the The GatewayScript policy after the single pokemon invoke policy (ie `get /pokemon/{id}`). 
+1. Drag the The GatewayScript policy after the **invoke-current** policy (ie `get /current`). 
 	![alt](images/gatewayscript.png)
 2. Insert the following code into the editor. It will obtain the runtime API context (ie payload + header + protocol info). Copy/paste the code below:
 
@@ -38,17 +29,15 @@ This tutorial is based on the tutorial series available [here](#01-getting-start
 
 	The `message` context variable is the default context that contains the API runtime context, which includes the JSON body sent back to the consumer. 
 3. Click on the X to close the editor menu and save your changes.
-4. Test the Pokemon API. Click the **Play icon** to open the built-in test tool. Test the **get /pokemon/{id}** operation, enter an **id** value of `1`. A single Pokemon item is returned with the additional attribute `platform` containing `Powered by API Connect`.
+4. Test the Pokemon API. Click the **Play icon** to open the built-in test tool. Test the **get /current** operation, enter **zipcode** value of `90201`. A single Pokemon item is returned with the additional attribute `platform` containing `Powered by API Connect`.
 	```
 	{
-		"data": {
-			"moves": "slow"
-		},
-		"height": "70",
-		"name": "ivysaur",
-		"weight": 200,
-		"id": "1",
-		"platform" : "Powered by API Connect"
+		"zip": "90210",
+		"temperature": 61,
+		"humidity": 93,
+		"city": "Beverly Hills",
+		"state": "California",
+		"platform": "Powered by IBM API Connect"
 	}
 	```
 
@@ -73,9 +62,9 @@ Each context variable has additional attributes such as `body`, `headers`, etc .
 	json.headers.platform = 'Powered by IBM API Connect';
 	apim.setvariable('message.headers', json.headers);
 	```
-6. The built-in test editor does not show custom headers, so you will need an issue a curl command to verify that a new respond header is returned.
+6. The built-in test editor does not show custom headers, so you will need to issue a curl command to verify that a new respond header is returned.
 	```
-	 curl https://127.0.0.1:4001/api/pokemon/1 -H "X-IBM-Client-Id: default" -k -v
+	 curl https://127.0.0.1:4001/current?zipcode=90210 -H "X-IBM-Client-Id: default" -k -v
 	```
 	
 For more information about writing JavaScript, see [here](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/rapim_gwscript_codesnip.html).
@@ -94,3 +83,5 @@ Once the message is transformed, you could use a `Validate` action to verify the
 For more information on these policies, view the docs [here](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/rapim_ref_ootb_policies.html).
 
 In this tutorial, you learned how to modify JSON payload and HTTP headers using JavaScript via the GatewayScript policy.
+
+**Next Tutorial**: [Handling API Errors](../master/error-handling/README.md)

@@ -1,0 +1,128 @@
+swagger: '2.0'
+info:
+  title: Weather Provider API
+  version: 1.0.0
+  x-ibm-name: weather-provider-api
+host: myweatherprovider.mybluemix.net
+schemes:
+  - https
+basePath: /
+produces:
+  - application/json
+paths:
+  /current:
+    get:
+      summary: Current Weather
+      parameters:
+        - name: zipcode
+          in: query
+          description: A valid 5-digit US zip code
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/Current'
+  /today:
+    get:
+      summary: Today's Weather
+      parameters:
+        - name: zipcode
+          in: query
+          description: A valid 5-digit US zip code
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Profile information for a user
+          schema:
+            $ref: '#/definitions/Today'
+definitions:
+  Today:
+    type: object
+    properties:
+      zip:
+        type: string
+      hi:
+        type: integer
+      lo:
+        type: integer
+      nightHumidity:
+        type: integer
+      city:
+        type: string
+      state:
+        type: string
+      dayHumidity:
+        type: integer
+  Current:
+    type: object
+    properties:
+      zip:
+        type: string
+      temperature:
+        type: integer
+      humidity:
+        type: integer
+      city:
+        type: string
+      state:
+        type: string
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+  cors:
+    enabled: true
+  assembly:
+    execute:
+      - operation-switch:
+          title: operation-switch
+          case:
+            - operations:
+                - verb: get
+                  path: /current
+              execute:
+                - invoke:
+                    title: invoke-current
+                    timeout: 60
+                    verb: GET
+                    cache-response: protocol
+                    cache-ttl: 900
+                    version: 1.0.0
+                    target-url: >-
+                      https://myweatherprovider.mybluemix.net/current?zipcode=$(request.parameters.zipcode)
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "\t//get the payload\n\tvar json = apim.getvariable('message');\n\tconsole.info(\"json %s\", JSON.stringify(json));\n\n\t//code to inject new attribute \n\tif (json.body && json.status.code == '404') {\n\t\tconsole.error(\"throwing apim error %s\", JSON.stringify(json.status.code));\n\t\tapim.error('ConnectionError', 500, 'Service Error', 'Failed to retrieve data');\n\t\t\n\t}\n\telse {\n\t\tjson.body.platform = 'Powered by IBM API Connect';\n\t\tjson.headers.platform = 'Powered by IBM API Connect';\n\t}\n\n\t//set the payload\n\tapim.setvariable('message.body', json.body);\n\tapim.setvariable('message.headers', json.headers);"
+            - operations:
+                - verb: get
+                  path: /today
+              execute:
+                - invoke:
+                    title: invoke-today
+                    timeout: 60
+                    verb: GET
+                    cache-response: protocol
+                    cache-ttl: 900
+                    version: 1.0.0
+                    target-url: >-
+                      https://myweatherprovider.mybluemix.net/today?zipcode=$(request.parameters.zipcode)
+          otherwise: []
+          version: 1.0.0
+    catch:
+      - errors:
+          - ConnectionError
+          - RuntimeError
+        execute:
+          - set-variable:
+              title: Rewrite Error
+              actions:
+                - set: message.body
+                  value: '{"message": "Error occurred during search operation."}'
+              version: 1.0.0
+  gateway: datapower-gateway
+consumes:
+  - application/json
