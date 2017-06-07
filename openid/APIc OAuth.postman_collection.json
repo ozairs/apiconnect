@@ -39,7 +39,7 @@
 						},
 						{
 							"key": "scope",
-							"value": "pokemon",
+							"value": "weather",
 							"type": "text"
 						},
 						{
@@ -99,7 +99,7 @@
 						{
 							"disabled": false,
 							"key": "scope",
-							"value": "pokemon",
+							"value": "weather",
 							"type": "text"
 						},
 						{
@@ -135,7 +135,7 @@
 						},
 						{
 							"key": "scope",
-							"value": "pokemon",
+							"value": "weather",
 							"type": "text"
 						},
 						{
@@ -418,7 +418,7 @@
 						},
 						{
 							"key": "scope",
-							"value": "pokemon",
+							"value": "weather",
 							"type": "text"
 						}
 					]
