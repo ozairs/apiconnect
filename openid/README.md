@@ -127,7 +127,7 @@ When using the API Connect developer toolkit with OAuth Access code flow, you wi
 
 1. Configure environment for OAuth Access Code 
 	* Open a command prompt and make sure your in the project directory (ie same directory as the project yaml files). Enter the command `apic config:set oauth-redirect-uri=https://www.getpostman.com/oauth2/callback`. 
-	* Verify that the `oauth-redirect-uri` is set within the file `.apiconnect/config`. You can always manually add the following line:
+	* Verify that the `oauth-redirect-uri` is set within the file `.apiconnect/config` otherwise manually add it.
 	`oauth-redirect-uri: 'https://www.getpostman.com/oauth2/callback'`
 	* Open Postman Preferences and disable **Automatically follow redirects**.
 	![alt](media/postman.png)
