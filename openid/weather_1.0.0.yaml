@@ -1,0 +1,25 @@
+product: 1.0.0
+info:
+  name: weather
+  title: Weather
+  version: 1.0.0
+visibility:
+  view:
+    type: public
+  subscribe:
+    type: authenticated
+plans:
+  default:
+    title: Default Plan
+    description: Default Plan
+    approval: false
+    rate-limit:
+      value: 100/hour
+      hard-limit: false
+apis:
+  oauth2-oidc-provider:
+    $ref: oauth_1.0.0.yaml
+  utility:
+    $ref: utility_1.0.0.yaml
+  weather-provider-api:
+    $ref: weather-provider-api_1.0.0.yaml
