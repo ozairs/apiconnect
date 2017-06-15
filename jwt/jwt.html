@@ -1,0 +1,156 @@
+In this tutorial, you will protect access to your APIs using <a href="https://auth0.com">Auth0.com</a>.
+
+<strong>What is Auth0?</strong> Auth0 is a cloud-based solution that provides integration with multiple identity providers,
+such as Google, Facebook, and more. Third-party Web and Mobile applications can easily provide authentication services using
+Auth0 without having to worry about the integration logic with the identity provider. This helps accelerate delivery of digital
+solutions and not require technical investment in authentication capabilities.
+
+<strong>Duration</strong>: 20 minutes
+
+<strong>Skill level</strong>: Intermediate
+
+<strong>Prerequisites:</strong>
+<ul>
+    <li><a href="https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/tapim_cli_install.html">API Connect Developer Toolkit 5.0.7.1</a></li>
+    <li><a href="https://curl.haxx.se/">curl</a> (or similar tool to issue RESTful requests)</li>
+    <li>API Connect on <a href="https://bluemix.net">Bluemix</a> account</li>
+</ul>
+In this tutorial, you will control access to the backend service by requiring a valid JWT (JSON Web Token). For more information
+about JWT, see <a href="https://jwt.io">here</a>. JWT is a JSON-based token that provides a series of claims that are cryptographically
+verifyable. The base claim is a subject-audience pair which asserts the token for a particular user. In our scenario, the
+API definition requires a valid JWT token generated from a trusted identity provider - <a href="https://auth0.com">auth0.com</a>.
+The following instructions provide guidance on how to setup an auth0 account to issue JWT tokens. Its not a comprehensive
+step-by-step guide, so it is recommended you check out their <a href="https://auth0.com/docs">docs</a>.
+
+<strong>Instructions:</strong>
+
+<em>Auth0 Setup</em>
+<ol>
+    <li>Login to <a href="https://www.auth0.com">auth0</a> and create an auth0 account.</li>
+    <li>Click the <strong>APIs</strong> link from the nav bar and create a new API, called <code>Weather</code> and identifier
+        with <code>&lt;yourid&gt;.apiconnect.com</code>. Click <strong>Create</strong> to complete the API definition.</li>
+    <li>In the <strong>Quick Start</strong> section make a note of the jwsURI (example below):
+        <pre><code> secret: jwks.expressJwtSecret({
+         .
+         .
+         jwksUri: "https://ozairs.auth0.com/.well-known/jwks.json"
+     }),
+</code></pre>
+    </li>
+    <li>In the <strong>Scopes</strong> section create new scopes called <code>read</code> and <code>write</code> and add a description.</li>
+    <li>In the <strong>Non Interactive Clients</strong> section, expand the <code>Weather Client</code> and select the previously
+        created scopes and click <strong>Update</strong>. Click <strong>Continue</strong> to accept the warning message.</li>
+    <li>In the <strong>Test</strong> section, copy and paste the curl command in a command prompt (if curl is unavailable, use
+        alternatives).
+        <pre><code> $ curl --request POST \
+ &gt;   --url https://ozairs.auth0.com/oauth/token \
+ &gt;   --header 'content-type: application/json' \
+ &gt;   --data '{"client_id":"&lt;client_id&gt;","client_secret":"&lt;client_secret&gt;","audience":"https://ozairs.apiconnect.com/","grant_type":"client_credentials"}'
+ {"access_token":"&lt;token&gt;","expires_in":86400,"scope":"write read","token_type":"Bearer"}
+</code></pre> In a real-world use case, a web / mobile application will issue this request to obtain an access token.</li>
+</ol>
+Lets switch back to API Connect and add API assembly policies to validate the Auth0 token. This requires several steps:
+<ul>
+    <li><strong>Invoke</strong>: Obtain the JWK file used to validate the Auth0 generated JWT token</li>
+    <li><strong>GatewayScript</strong>: Save the JWK into a variable</li>
+    <li><strong>Validate JWT</strong>: validate the JWT token using the JWK variable</li>
+    <li><strong>Gatewascript</strong>: return the JWT claims for test validation</li>
+</ul>
+<em>API Connect Setup</em>
+<ol>
+    <li>Using the command prompt, create a directory for your project and login to the API designer.
+        <pre><code> mkdir apic-workspace
+ cd apic-workspace
+ apic edit
+</code></pre>
+    </li>
+    <li>In the API designer, click the <strong>APIs</strong> tab (if not selected), click the <strong>Add (+)</strong> button
+        and select <strong>Import API from a file or URL</strong>.</li>
+    <li>Click <strong>Import from URL …</strong> and enter <strong><a href="https://raw.githubusercontent.com/ozairs/apiconnect/master/jwt/weather-provider-api_1.0.0.yaml">https://raw.githubusercontent.com/ozairs/apiconnect/master/jwt/weather-provider-api_1.0.0.yaml</a></strong>.
+        Click <strong>Import</strong> to finish the task.</li>
+    <li>Open the Weather API. In the <strong>Design</strong> tab, select Paths and click the + button to add a new Path named
+        <code>/weather</code> to the existing Weather API. Leave the default GET operation. Click Save once complete.</li>
+    <li>Click the <strong>Assemble</strong> tab and select the existing <code>operation-switch</code> policy. Add a new case
+        for the <code>get /weather</code>.</li>
+    <li>fdfds</li>
+    <li>For the <code>get /weather</code> case, add the following policies. You need to drag the assembly policies into the for
+        the <code>get /weather</code> row.
+        <ul>
+            <li>Add a <code>Invoke</code> action, named <code>get-jwk-key</code> with the following:
+                <ul>
+                    <li><strong>URL</strong>: <a href="https://ozairs.auth0.com/.well-known/jwks.json">https://ozairs.auth0.com/.well-known/jwks.json</a></li>
+                    <li><strong>Cache Type</strong>: Time to Live</li>
+                    <li><strong>Cache Time to Live</strong>: 900</li>
+                    <li>Uncheck Stop on Error</li>
+                    <li><strong>Response object variable</strong>: rsa256-key</li>
+                </ul>
+            </li>
+            <li> Add a GatewayScript policy to extract the JSON Web Key (JWK) from the previous <code>Invoke</code> policy and
+                save it as a context variable
+                <pre><code>var rsa256Key = apim.getvariable('rsa256-key');
+apim.setvariable('jwk-key', JSON.stringify(rsa256Key.body.keys[0]));
+</code></pre>
+            </li>
+            <li>Add a <code>Validate JWT</code> policy with the following:
+                <ul>
+                    <li><strong>JWT</strong>: request.headers.authorization</li>
+                    <li><strong>Output Claims</strong>: decoded.claims</li>
+                    <li><strong>Issuer Claim</strong>: .*.auth0.com\/</li>
+                    <li><strong>Audience Claim</strong>: .*.apiconnect.com</li>
+                    <li><strong>Verify Crypto JWK variable name</strong>: jwk-key</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ol>
+<strong>                Note</strong>: You can create a stronger regular expression in the issuer and audience claims field
+for enhanced security if you want to control access from between specific users and providers.
+<ol>
+    <li style="list-style-type: none;">
+        <ul>
+            <li>Add a GatewayScript policy to return the decoded claims
+                <pre><code>apim.setvariable('message.body', apim.getvariable('decoded.claims'));
+</code></pre>
+                <a href="/wp-content/uploads/sites/23/2017/06/jwt-validate.png"><img class="alignnone size-full" src="/wp-content/uploads/sites/23/2017/06/jwt-validate.png" alt="alt" width="856" height="91" /></a>                Notice that the <code>get /weather</code> does not have a backend Invoke policy although it would in a real-world
+                scenario. We are simply returning the decoded claims to verify the JWT token was successfully validated.</li>
+        </ul>
+    </li>
+    <li>Test the JWT policy to make sure it successfully validates the Auth0 token. A real-world (mobile) application will use
+        two endpoints:</li>
+</ol>
+<ul>
+    <li><strong>Auth0</strong>: obtain the JWT token against the Auth0 authorization server directly (ie no API Connect involvement).
+        <pre><code>curl --request POST \
+&gt;   --url https://ozairs.auth0.com/oauth/token \
+&gt;   --header 'content-type: application/json' \
+&gt;   --data '{"client_id":"&lt;client_id&gt;","client_secret":"&lt;client_secret&gt;","audience":"https://ozairs.apiconnect.com/","grant_type":"client_credentials"}'
+</code></pre>
+    </li>
+    <li><strong>API Connect</strong>: validate the JWT token from Auth0
+        <ul>
+            <li>Enter the following curl command, replacing the with the previous <code>access_token</code> value into the Authorization
+                header.
+                <pre><code>https://127.0.0.1:4001/weather -H "X-IBM-Client-Id: default" -H "Authorization: Bearer &lt;access_token&gt;" -k
+</code></pre> &nbsp;
+            </li>
+            <li>The response will contain the decoded JWT
+                <pre><code>{
+"iss": "https://ozairs.auth0.com/",
+"sub": "gHXm6ss79Jm866TYdyMCtPyyZ25iFpWq@clients",
+"aud": "https://ozairs.apiconnect.com/",
+"exp": 1494354567,
+"iat": 1494268167,
+"scope": "write read"
+}
+</code></pre>
+            </li>
+        </ul>
+    </li>
+</ul>
+For more information about JWT, you can read <a href="https://developer.ibm.com/apiconnect/2016/08/16/securing-apis-using-json-web-tokens-jwt-in-api-connect-video-tutorial/">here</a>Summary of the JWT security actions:
+<ul>
+    <li><code>jwt-validate</code>: validate the identity assertion claims from a jwt token</li>
+    <li><code>jwt-generate</code> (not used in tutorial): generate jwt token with identity assertion claims</li>
+</ul>
+In this tutorial, you used a JWT validate policy to verify the JSON Web signature (JWT) of a JWT token that was generated
+from Auth0 (external identity provider).
