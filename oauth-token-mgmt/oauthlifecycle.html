@@ -1,0 +1,51 @@
+<style>.hljs{display:block;overflow-x:auto;padding:.5em;background:#fff;color:#000}.hljs-comment,.hljs-quote{color:#006a00}.hljs-keyword,.hljs-literal,.hljs-selector-tag{color:#aa0d91}.hljs-name{color:#008}.hljs-template-variable,.hljs-variable{color:#660}.hljs-string{color:#c41a16}.hljs-link,.hljs-regexp{color:#080}.hljs-bullet,.hljs-meta,.hljs-number,.hljs-symbol,.hljs-tag,.hljs-title{color:#1c00cf}.hljs-attr,.hljs-built_in,.hljs-builtin-name,.hljs-class .hljs-title,.hljs-params,.hljs-section,.hljs-type{color:#5c2699}.hljs-attribute,.hljs-subst{color:#000}.hljs-formula{background-color:#eee;font-style:italic}.hljs-addition{background-color:#baeeba}.hljs-deletion{background-color:#ffc8bd}.hljs-selector-class,.hljs-selector-id{color:#9b703f}.hljs-doctag,.hljs-strong{font-weight:700}.hljs-emphasis{font-style:italic}.pn-copy ol>li>p{margin-top:0}.pn-copy h3{font-size:2rem}.pn-copy ol.table-of-contents>li{margin-top:0;margin-bottom:0}.pn-copy ol.table-of-contents ol.subheading{margin-top:0;margin-bottom:0}.pn-copy ol.table-of-contents ol.subheading>li{margin-bottom:0}.pn-copy h2{padding-top:1em}.pn-copy h1,.pn-copy h2,.pn-copy h3{clear:both}.pn-copy .border{border:1px solid #2d2e31}.pn-copy .figure{max-width:66%}.pn-copy ol.table-of-contents ol.subheading{list-style:upper-alpha}</style><p>In this tutorial, you will learn about the various OAuth token lifecycle operations. Specifically, you will learn how to obtain a new access token from a refresh token, revoke tokens, and obtain token details using OAuth introspection.</p> <p><strong>What is OAuth lifecycle management?</strong></p> <p>Web site / Mobile application that provide access to third-party API services (ie login with your Google credentials) using OAuth will store your ‘permission’ so they don’t need to re-ask your permissions again. It will allow you to login to your favourite application (ie using your google credentials) without being prompted again to perform the OAuth handshake.</p> <p>Each OAuth token has a validity date and can expire. For mobile applications, they often provide long-lived sessions so you don’t need to login to the application everytime you open it. For these use cases, a refresh token provides a convenient way to obtain a new access token for an expired access token without performing the OAuth handshake again. In other circumstances, you may want to remove your previous consented permissions (ie login with Google) or you may have lost your mobile device and want to remove the permissions to avoid unauthorized access. In these situtations, you can revoke your permissions granted to an OAuth application to prevent the OAuth application from accessing your resources.</p> <p>These capabilities are critical to providing a first-class application experience because things can go wrong but the user experience does not have to suffer along the way. In his article, you will learn about the various OAuth token lifecycle capabilite and how to build them into your application.</p> <p><strong>Prerequisites</strong></p> <ul> <li><a href="https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/tapim_cli_install.html">API Connect Developer Toolkit 5.0.7+</a></li> <li>Import API definitions file: oauth, utility and Weather. Click the <strong>Add (+)</strong> button and select <strong>Import API from a file or URL</strong>. <ul> <li><a href="">https://github.com/ozairs/apiconnect/blob/master/oauth/weather-provider-api_1.0.0.yaml</a> </li> <li><a href="">https://github.com/ozairs/apiconnect/blob/master/oauth/oauth_1.0.0.yaml</a>. </li> <li><a href="">https://github.com/ozairs/apiconnect/blob/master/oauth/utility_1.0.0.yaml</a>. </li> </ul> </li> <li><a href="https://www.getpostman.com/">Postman</a>.</li> <li>Download the Postman collection <a href="https://www.getpostman.com/collections/951c78382a60b7f7be67">here</a></li> </ul> <p><strong>Important:</strong></p> <p>If your unfamiliar with running the API Connect Developer toolkit, you can follow the instructions <a href="https://github.com/ozairs/apiconnect/blob/master/getting-started/README.md">here</a>.</p> <p><strong>Instructions:</strong> </p> <p>The API definitions contain pre-configured OAuth configuration. You will use the Postman collection to run requests and learn about the various OAuth token lifecycle operations.</p> <p>If you want to learn about OAuth configuration, see <a href="https://www.ibm.com/support/knowledgecenter/en/SSFS6T/com.ibm.apic.toolkit.doc/tutorial_apionprem_security_OAuth.html">here</a></p> <p>Let’s first get an access token using the OAuth resource owner grant type. Change the hostname/port number in the Postman requests if they are different in your environment.</p> <ol> <li>Using the Postman collection, open the <strong>OAuth Password</strong> request and click <strong>Send</strong>.<pre><code> {
+     "token_type": "bearer",
+     "access_token": "&lt;sanitized&gt;",
+     "expires_in": 3600,
+     "scope": "weather",
+     "refresh_token": "&lt;sanitized&gt;"
+ }
+</code></pre></li> <li>Use the <strong>OAuth Token List</strong> request to obtain a list of tokens from an OAuth application (ie <code>client_id=default</code>). Click <strong>Send</strong> to view the list of tokens. It will return the previously obtained access token.<pre><code> [
+     {
+         &quot;clientId&quot;: &quot;default&quot;,
+         &quot;clientName&quot;: &quot;default&quot;,
+         &quot;owner&quot;: &quot;cn=spoon,email=spoon@poon.com&quot;,
+         &quot;scope&quot;: &quot;weather&quot;,
+         &quot;issuedAt&quot;: 1495268682,
+         &quot;expiredAt&quot;: 1497950682,
+         &quot;refreshTokenIssued&quot;: true
+     }
+ ]
+</code></pre></li> <li>Use the <strong>OAuth App Revocation</strong> request to remove all access tokens issued to an OAuth application (ie <code>client_id=default</code>). Click <strong>Send</strong> to revoke all access tokens for the application <code>default</code>.<pre><code> {
+     &quot;status&quot;: &quot;success&quot;
+ }
+</code></pre></li> <li>Invoke the <strong>OAuth Token List</strong> request now. You won’t get any tokens returned since the tokens are revoked.<pre><code> []
+</code></pre></li> <li><p>Use the <strong>OAuth Refresh Token</strong> request to obtain a new access token when an access token is expired without going through the OAuth handshake again. If you still have the <strong>OAuth Password</strong> response open, copy the refresh token onto your clipboard (otherwise submit the <strong>OAuth Password</strong> request again to obtain a new access token and copy the refresh token to your clipboard). </p> </li> <li><p>Open the <strong>OAuth Refresh Token</strong> request and paste the refresh token into the existing field within the <em>Body</em>. This will return both a new access token and refresh token.</p> <pre><code> {
+ "token_type": "bearer",
+ "access_token": "&lt;sanitized&gt;",
+ "expires_in": 3600,
+ "scope": "weather",
+ "refresh_token": "&lt;sanitized&gt;"
+ }
+</code></pre></li> <li>In the same <strong>OAuth Refresh Token</strong> request, click <strong>Send</strong> again to get a new access token from the refresh token. You will get an error because the old refresh token is invalidated when a new access token is returned from a refresh token.<pre><code> {
+     &quot;error&quot;: &quot;invalid_grant&quot;
+ }
+</code></pre></li> <li>The <strong>OAuth Introspection</strong> request validates the access token and returns the details of the access token. Use the <strong>OAuth Password</strong> request again to obtain a new access token. In the <strong>OAuth Introspection</strong> request, copy the access token into the <code>token</code> field within the <strong>Body</strong>. Click <strong>Send</strong> to obtain the details:<pre><code> {
+ &quot;active&quot;: true,
+ &quot;token_type&quot;: &quot;bearer&quot;,
+ &quot;client_id&quot;: &quot;default&quot;,
+ &quot;username&quot;: &quot;cn=spoon,email=spoon@poon.com&quot;,
+ &quot;sub&quot;: &quot;cn=spoon,email=spoon@poon.com&quot;,
+ &quot;exp&quot;: 1495273141,
+ &quot;expstr&quot;: &quot;2017-05-20T09:39:01Z&quot;,
+ &quot;iat&quot;: 1495269541,
+ &quot;nbf&quot;: 1495269541,
+ &quot;nbfstr&quot;: &quot;2017-05-20T08:39:01Z&quot;,
+ &quot;scope&quot;: &quot;weather&quot;,
+ &quot;miscinfo&quot;: &quot;[r:gateway]&quot;,
+ &quot;client_name&quot;: &quot;default&quot;
+ }
+</code></pre></li> <li>Optionally, revoke the token using the <strong>OAuth App Revocation</strong> request and then issue the <strong>OAuth Introspection</strong> call again, you will get an error because the token is not valid.<pre><code> {
+ &quot;active&quot;: false
+ }
+</code></pre></li> </ol> <p>In this tutorial, you learned about the lifecycle of OAuth tokens. Specifically, you obtained a new access token from a refresh token. Revoked and listed tokens and obtained the details of an access token.</p>

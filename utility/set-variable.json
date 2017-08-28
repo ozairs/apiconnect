@@ -1,0 +1,49 @@
+{
+  "set-variable": {
+    "title": "set-variable",
+    "actions": [
+      {
+        "set": "demo.api-authenticated-credential",
+        "value": "cn=spoon,ou=ozair,o=ibm"
+      },
+      {
+        "set": "demo.application.x-selected-scope",
+        "value": "accountinfo"
+      },
+      {
+        "set": "demo.owner.x-selected-scope",
+        "value": "read:8888-8888"
+      },
+      {
+        "set": "demo.authenticate-url.x-selected-scope",
+        "value": "mutual openid"
+      },
+      {
+        "set": "demo.identity.redirect.username",
+        "value": "spoon"
+      },
+      {
+        "set": "demo.identity.redirect.confirmation",
+        "value": "ozair"
+      },
+      {
+        "set": "demo.authenticate-url.metainfo.4.token",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4ODgtODgtODg4OCIsIm5hbWUiOiJTcG9vbiIsImFkbWluIjp0cnVlfQ.FUzbH2_0OTbK4zwWOjzz-ivop1hetZkBpldGF77bJwM"
+      },
+      {
+        "set": "demo.authenticate-url.metainfo.4.payload",
+        "value": "For your eyes only"
+      },
+      {
+        "set": "demo.introspect.response.scope",
+        "value": "spoon fork knife"
+      },
+      {
+        "set": "demo.authenticate-url.x-selected-scope-w-desc",
+        "value": "{\"mutual\":\"Mutual Fund\"}"
+      }
+    ],
+    "version": "1.0.0",
+    "description": "This set up value for the http response for the demo purpose"
+  }
+}

@@ -17,7 +17,8 @@ info:
 
     Implicit : this is a subset of authorization code grant type, public client
   contact:
-    name: IBM API Connect
+    url: ''
+    name: ''
 schemes:
   - https
 host: $(catalog.host)
@@ -274,6 +275,32 @@ paths:
             $ref: '#/definitions/access_token_response'
         '400':
           description: json document that may contain additional details about the failure
+  /oauth2/revoke:
+    post:
+      consumes:
+        - application/x-www-form-urlencoded
+      summary: Introspect a given access_token supported
+      description: |
+        This endpoint introspects a given access_token
+      security:
+        - clientIdHeader: []
+          clientSecretHeader: []
+      parameters:
+        - name: token
+          in: formData
+          description: 'String value of the access_token, or refresh_token to be revoked'
+          required: true
+          type: string
+        - name: token_type_hint
+          in: formData
+          description: >-
+            This must contain 'access_token' or 'refresh_token' to indicate the
+            token type
+          required: true
+          type: string
+      responses:
+        '200':
+          description: not applicable
   /oauth2/introspect:
     post:
       consumes:
@@ -350,7 +377,7 @@ x-ibm-configuration:
   oauth2:
     client-type: confidential
     scopes:
-      weather: Banking Information
+      weather: Weather Information
       openid: Enable OIDC
     grants:
       - password
@@ -358,27 +385,40 @@ x-ibm-configuration:
       - application
       - implicit
     identity-extraction:
-      type: default-form
+      type: basic
     authentication:
       x-ibm-authentication-url:
-        url: 'https://127.0.0.1:443/utility/basic-auth/spoon/spoon'
+        url: 'https://$(api.endpoint.address):9443/utility/basic-auth/spoon/spoon'
         tls-profile: ''
     authorization:
       type: authenticated
     access-token:
       ttl: 3600
-    refresh-token:
-      count: 2048
-      ttl: 2682000
     revocation:
       type: gateway
     metadata:
       metadata-url:
         url: ''
         tls-profile: ''
+    refresh-token:
+      count: 2048
+      ttl: 2682000
+    scope-validators:
+      application:
+        url: 'https://127.0.0.1:9443/utility/provider/scope-check/application'
   gateway: datapower-gateway
   assembly:
     execute:
+      - set-variable:
+          title: set-variable
+          actions:
+            - set: iss.claim
+              value: $(OIDCIssuer)
+            - set: sign-jwk
+              value: $(JWSSignPrivateKey)
+            - set: jwt.sign.algorithm
+              value: $(JWSAlgorithm)
+          version: 1.0.0
       - switch:
           title: switch
           case:
@@ -399,21 +439,50 @@ x-ibm-configuration:
                         xmlns:apim="http://www.ibm.com/apimanagement"
                         extension-element-prefixes="dp apim"
                         exclude-result-prefixes="dp apim">
-                        <xsl:include href="local://isp/policy/apim.setvariable-impl.xsl" dp:ignore-multiple="yes"/>
+                        
+                        <xsl:include href="local:///isp/policy/apim.setvariable-impl.xsl" dp:ignore-multiple="yes"/>
+                        
                         <xsl:template match="/">
-                          <xsl:if test="starts-with(dp:http-response-header('x-dp-response-code'), '302') and
-                                        contains(dp:http-response-header('Location'), 'access_token')">
-                            <xsl:call-template name="apim:setVariableImpl">
-                              <xsl:with-param name="rawName" select="'oidc-location'"/>
-                              <xsl:with-param name="rawValue" select="dp:http-response-header('Location')"/>
-                              <xsl:with-param name="action" select="'set'"/>
-                            </xsl:call-template>
-                            <xsl:call-template name="apim:setVariableImpl">
-                              <xsl:with-param name="rawName" select="'oidc-credential'"/>
-                              <xsl:with-param name="rawValue" select="string(dp:variable('var://context/_apimgmt/authenticated-username'))"/>
-                              <xsl:with-param name="action" select="'set'"/>
-                            </xsl:call-template>
-                          </xsl:if>
+                          <xsl:choose>
+                            <xsl:when test="string(dp:variable('var://context/_apimgmt/multi-response-type')) != '' and
+                                            (contains(dp:http-response-header('Location'), '?code=') or
+                                             contains(dp:http-response-header('Location'), '&amp;code='))">
+                              <xsl:call-template name="apim:setVariableImpl">
+                                <xsl:with-param name="rawName" select="'oidc-location'"/>
+                                <xsl:with-param name="rawValue" select="dp:http-response-header('Location')"/>
+                                <xsl:with-param name="action" select="'set'"/>
+                              </xsl:call-template>
+                              <xsl:call-template name="apim:setVariableImpl">
+                                <xsl:with-param name="rawName" select="'oidc-credential'"/>
+                                <xsl:with-param name="rawValue" select="string(dp:variable('var://context/_apimgmt/authenticated-username'))"/>
+                                <xsl:with-param name="action" select="'set'"/>
+                              </xsl:call-template>
+                            </xsl:when>  <!-- temporary az code -->
+                            
+                            <xsl:when test="starts-with(dp:http-response-header('x-dp-response-code'), '302') and
+                                            contains(dp:http-response-header('Location'), 'access_token')">
+                              <xsl:variable name="scope" select="substring-before(substring-after(dp:http-response-header('Location'), 'scope='), '&amp;')"/>
+                               <xsl:if test="($scope = 'openid') or
+                                              contains($scope, '+openid+') or
+                                              starts-with($scope, 'openid+') or
+                                              ends-with($scope, '+openid')">
+                                <xsl:call-template name="apim:setVariableImpl">
+                                  <xsl:with-param name="rawName" select="'oidc-location'"/>
+                                  <xsl:with-param name="rawValue" select="dp:http-response-header('Location')"/>
+                                  <xsl:with-param name="action" select="'set'"/>
+                                </xsl:call-template>
+                                <xsl:call-template name="apim:setVariableImpl">
+                                  <xsl:with-param name="rawName" select="'oidc-credential'"/>
+                                  <xsl:with-param name="rawValue" select="string(dp:variable('var://context/_apimgmt/authenticated-username'))"/>
+                                  <xsl:with-param name="action" select="'set'"/>
+                                </xsl:call-template>
+                              </xsl:if>
+                            </xsl:when>
+                            
+                            <xsl:otherwise/>
+
+                          </xsl:choose>
+                          
                         </xsl:template>
                       </xsl:stylesheet>
             - condition: >-
@@ -445,22 +514,79 @@ x-ibm-configuration:
           title: if
           condition: apim.getvariable('oidc-credential') !== undefined
           execute:
-            - set-variable:
-                title: set-variable
-                actions:
-                  - set: iss.claim
-                    value: Spoon Bank Inc
-                  - set: sign-jwk
-                    value: >-
-                      {   "kty": "RSA",   "d":
-                      "AQZvY1Z3Jymu7eKDAoZ9P-v5QvqCMb7EtDfTkW-CIOsvh4jVPIK-gwmoEqq4ic8WVOfQAEN4hN5SMuMoJu0xGpGtqIbYTl1yoJ22zFXXCWg0lv1InQmkg6EuaOzncSL7gnXxkWQUCbbtxMMwulKaQLUIR1vOGhPIjiNWrhwNxz2igbTHUEhPYaxzXMFukJiYnmeUd5FGq_QnhR_R4CgQt3yTKaAEWF2LlaejeDkqMXHCSuXRq-Ua3Y1IYzn3AXPoF9nfAV5QJezITDdSPAK5_hkKSLzb92Y6Pg7jXhH3DgfLVolpxrZWmK58P2IGz1uhuw9Nh_4a0_gw5xTNBNbAPSTOI6S9X7pt1rTSShYBOEJZ3MF7w3NDH2dsvkjZcdUxgvaHTrZKDtg2OJP0Go1sePvJHZJ1S0jjrSXMQyTagvjVhO0FQ_LuFrEhKPDpeXmyvVUJ8ud9oboJ_PbeL8bxOzp8HD6MI2SjrjtZ4SCmz3afdNKoS0_0Dk3i-JaV9kxVqUQYAGwRoccgh8aoIARMHGjlPP97lJkdIOxHb8KAjxa0GX5ZFz77xjz9P0E54u_TmKXj4iVGuY-yA33TNC0muwzm5q2HOlUg7DhPUryGGoLTMv7hChuFj9J5c6BXvvVe3ukfQkfsTglS2JuMsGDOcLFCd5SGoa9myu5xD-uqhG2p",  
-                      "e": "AQAB",   "use": "sig",   "kid": "spoon",   "alg":
-                      "RS512",   "n":
-                      "At1JEfmAE-rOFUyNo1oj-o5cLC3w6z18gz3wA1oB3DFh1a1t3okvT-KbwPHQONa2QCKheF7VeEa3RJc4l7n5CK-CBuGzENw43YZXJFz8HfwdSSibzB18c0abP89IF0CnW2zJCcO-4bkHNgxZg_tg5wfbuXMQ3JTFkuAgrArpzZchbIl9ihjnPBq65DsxY3RwO-aqf03bGbwKXGUlE4wY7IKF25ofomrwnNrew4eS4iBenTxaQosaWAnBxV791-6Nu7fodcKcieHg3GG7xufeN7gOQH7VmZSNt5r9pFq71rsGNsb5ncrcT0t76Tw9RHMjYanY5YGpmftyfwqvuERsiGmZFrzHd_iBvLgZYWI8JRPbWgGniv493MFE5pP-NnHTTJU6sW313Z0soNH3tt5dI-2ARN6P3RrUDfusRCxwmqiYdjXHdo67WzXPvYmAs7Pdmp2zlgOdPCSokRw2D3Oq1_lHIsIaTrNY7sTU-jwLpZBZFAbhZoQMPFwoyDlZpUwHsChvN42ZH8tnvggKV_yDoq2wyA8nfPdlVIY86nLaXYP873E661eAONbZxEBntZMozYVzraWkwy3VxG2HgnD89UXZuPzBKwnt0PW_R554jrEYl2-8KT1vEWDrBxBPTm0Q6Js444U6NNmoHD1UIWW0yt3P86lTjWJWPTciTJBt_ann"
-                      }
-                  - set: private.claim
-                    value: '{"disclaimer":"for demo purpose"}'
+            - xslt:
+                title: xslt
+                input: false
                 version: 1.0.0
+                source: >-
+                  <xsl:stylesheet
+                  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
+                    xmlns:dp="http://www.datapower.com/extensions"
+                    xmlns:apim="http://www.ibm.com/apimanagement"
+                    xmlns:dpfunc="http://www.datapower.com/extensions/functions"
+                    xmlns:str="http://exslt.org/strings" 
+                    extension-element-prefixes="dp apim dpfunc str"
+                    exclude-result-prefixes="dp apim dpfunc str">
+                    
+                    <xsl:include href="local:///isp/policy/apim.setvariable-impl.xsl" dp:ignore-multiple="yes"/>
+                    <xsl:include href="store:///utilities.xsl" dp:ignore-multiple="yes"/>
+                    
+                    <xsl:template match="/">
+                      <!-- calculate at_hash, c_hash, and s_hash -->
+                      <!-- DP Firmware release 760 contain context variable
+                            var://context/AAA/oauth-token which will 
+                            provide the input data and output data for token generation
+                            IMPORTANT : make sure the algorithm is the same algorithm JWT will be used
+                      -->
+
+                      <xsl:variable name="algorithm" select="apim:getVariableImpl('jwt.sign.algorithm','false')"/>
+                      <xsl:variable name="oauth-data" select="dp:variable('var://context/AAA/oauth-token')"/>
+                      <xsl:variable name="token-claim">
+                        <xsl:text>{</xsl:text>
+                        <xsl:choose>
+                          <xsl:when test="$oauth-data/output/result/code != ''">
+                            <xsl:text>&quot;c_hash&quot;:&quot;</xsl:text>
+                            <xsl:value-of select="dpfunc:access_token-2-at_hash($oauth-data/output/result/code, $algorithm)"/>
+                            <xsl:text>&quot;,</xsl:text>
+                          </xsl:when>
+                          <xsl:when test="$oauth-data/output/result/access_token != ''">
+                            <xsl:text>&quot;at_hash&quot;:&quot;</xsl:text>
+                            <xsl:value-of select="dpfunc:access_token-2-at_hash($oauth-data/output/result/access_token, $algorithm)"/>
+                            <xsl:text>&quot;,</xsl:text>
+                          </xsl:when>
+                          <xsl:otherwise/>
+                        </xsl:choose>
+                        <xsl:choose>
+                          <xsl:when test="dp:variable('var://context/_apimgmt/oauth/request')/request/args/arg[@name='state'] != ''">
+                            <xsl:text>&quot;s_hash&quot;:&quot;</xsl:text>
+                            <xsl:value-of select="dpfunc:access_token-2-at_hash(dp:variable('var://context/_apimgmt/oauth/request')/request/args/arg[@name='state'], $algorithm)"/>
+                            <xsl:text>&quot;,</xsl:text> 
+                          </xsl:when>
+                          <xsl:when test="dp:variable('var://context/_apimgmt/oauth/request')/request/args/arg[@name='dp-data'] != '' and
+                                          not(ends-with(dp:variable('var://context/_apimgmt/oauth/request')/request/args/arg[@name='dp-data'], ':'))">
+                            <xsl:text>&quot;s_hash&quot;:&quot;</xsl:text>
+                            <xsl:value-of select="dpfunc:access_token-2-at_hash(str:tokenize(dp:variable('var://context/_apimgmt/oauth/request')/request/args/arg[@name='dp-data'],':')[last()], $algorithm)"/>
+                            <xsl:text>&quot;,</xsl:text>           
+                            <!-- last part of the dp-data is state -->
+                          </xsl:when>
+                          <xsl:otherwise/>
+                        </xsl:choose>
+                        
+                        <!-- does request contain nonce -->
+                        <xsl:if test="dp:variable('var://context/_apimgmt/oidc-nonce') != ''">
+                          <xsl:text>&quot;nonce&quot;:&quot;</xsl:text>
+                          <xsl:value-of select="dp:variable('var://context/_apimgmt/oidc-nonce')"/>
+                          <xsl:text>&quot;,</xsl:text>
+                        </xsl:if>
+                        <xsl:text>&quot;disclaimer&quot;:&quot;For OpenBanking OIDC demo purpose&quot;}</xsl:text>
+                      </xsl:variable>
+                      <xsl:call-template name="apim:setVariableImpl">
+                        <xsl:with-param name="rawName" select="'added.claim'"/>
+                        <xsl:with-param name="rawValue" select="$token-claim"/>
+                        <xsl:with-param name="action" select="'set'"/>
+                      </xsl:call-template>
+                    </xsl:template>
+                  </xsl:stylesheet>
             - jwt-generate:
                 title: jwt-generate
                 iss-claim: iss.claim
@@ -470,8 +596,8 @@ x-ibm-configuration:
                 jti-claim: true
                 sub-claim: oidc-credential
                 aud-claim: client.app.id
-                private-claims: private.claim
-                jws-alg: RS512
+                private-claims: added.claim
+                jws-alg: RS256
                 jws-jwk: sign-jwk
             - gatewayscript:
                 title: gatewayscript
@@ -484,29 +610,35 @@ x-ibm-configuration:
                   if (grantType === 'implicit') {
                     // regression in 5070 will not allow access, and modification to the location header
                     var location = apim.getvariable('oidc-location') + '&id_token=' + apim.getvariable("idtoken");
-                    // work around is to use xslr
+                    // work around is to use xslt
                     apim.setvariable('oidc-location', location);
                   }
 
                   else {
-                    var token = apim.getvariable("message.body");
-                    token["id_token"] = apim.getvariable("idtoken");
-                    apim.setvariable("message.body", JSON.stringify(token));
+                    if (apim.getvariable('oidc-location') !== undefined && apim.getvariable('oidc-location').indexOf('code=') !== -1) {
+                      var location = apim.getvariable('oidc-location') + '&id_token=' + apim.getvariable("idtoken");
+                      apim.setvariable('oidc-location', location);
+                    }
+                    else {
+                      var token = apim.getvariable("message.body");
+                      token["id_token"] = apim.getvariable("idtoken");
+                      apim.setvariable("message.body", JSON.stringify(token));
+                    }
                   }
             - if:
                 title: if
                 condition: >-
-                  new String (apim.getvariable
-                  ('message.status.code')).startsWith('302')
+                  new String
+                  (apim.getvariable('message.status.code')).startsWith('302')
                 execute:
                   - xslt:
                       title: xslt
                       input: false
                       version: 1.0.0
-                      source: >-
+                      source: >
                         <xsl:stylesheet
                         xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                        version="1.0"
+                          version="1.0"
                           xmlns:dp="http://www.datapower.com/extensions"
                           xmlns:apim="http://www.ibm.com/apimanagement"
                           extension-element-prefixes="dp apim"
@@ -520,6 +652,24 @@ x-ibm-configuration:
                 version: 1.0.0
           version: 1.0.0
     catch: []
+  properties:
+    JWSSignPrivateKey:
+      value: >-
+        {   "kty": "RSA",   "d":
+        "IcXNi8cf4MPHgjpJTklPa6debT2OYC8UVGyk9ZdM883Pin8_wLazOOKPeF7oQz8gX6ZCNfe1X_PBo4pCsJvajsp8PNO1LxXOvnE_aRUQUR4MdWv4GmPMxuFluKpYpg3US9Xa8FYoHDtYjunp0f5r_Rmr-4L_3pxLHDHk97NQCpJjpNXUgP1WbiTjZ6qNbMNEaUKoexiIXjuaTsgtheSHh4EKPMLWdlmwK5ma5lALzmEwdCc878pcS4WaULVOxCQ8N7XUwz2A823Iax8sZ0c7ZAMyjjEW7Gx9IUBTc8s9lUjrxvKzRXPdjL2q-g6sVnvYvo9hE-XLCY5Yir3w0PEn2Gpvi-YbO5IZ0CynT-ohPOWPkD7ciWpWZQIPq8i84412UAfVlIijgPEKQNdH4wFIFSPcaSmoZbMkxdFKVIJJQF_6_onWqpS5wTNCk6R0EkfFMX-k7yqPXgmTcJkKetovPaFxVse-PWVzbdzX0Y7WOQ24DCoyqDxJ5pqqzmtbFHEDO-eGL8ikRm3PMyGjyHX8mffBg7uQxKfSvciPbic_lZQaRqAROVvFMHQjQni7su1qLJPdcCeb9abGjnjYRb_7Riuw7JgmPdw82TYtOLMdiNmraOcsVA18mHvMY57I5KQ5JyJqdm7Q4-lysCzuFplzH5nOolmArCKJG7cA1_-hS4E",  
+        "e": "AQAB",   "use": "sig",   "kid": "spoon",   "alg": "RS512",   "n":
+        "nNekmaBt236y5xI0ZoFo3r6WJH-hVnK6-_RFHrLW_GwIkWScu-iPqns3osztdo5Js36VHqf4TV87DZE82_uO_u40YKbuDiGhKmBS6JIqfRFe-XombaPUqAVz_fgv5f68jBWZ8cwy1kRLpqXkD9KvOruqeG9fOyQq0hYUfdQFxECxeTS0Xl1N_sELQdl9Ou7lhjk18hYfLe5zII2THxgLP24JP4L2AgjTZcO--434bMn-EK8KSUZ1qGEMmF_F1M6qAzrbTYmnfaewV8sFV25X2_vD8Y28CVmR9FgH6VY6o9GUUKlmmx9mwmFfodgPxFtqITxdhQ8S2rpg0WMvSlbxqtolD91MsXeiqvWGCuQmb3CUzJrMPb5XEgt-6l4WvT2_FffBHaRvpSLw-cVN6TauL1SusFsN0plkuapJQBccfHgU4tS51NvlXJ2ISueUVK5vKlBywfxe5V9EHE0EJ0V3fBA--bL5NBQHlLP7MnqV0BXGDHnwaZJ3160w2wDGGW7NxwTUNwtsJgNg_k9kAqm4vWsttxUE-HdF1cprCl-jyuDnCOv6AHCWi6oQF1X13FtegWq8rNwEA_S_qnd_Qmhs8g5IFvBVaAWBmnbNd8TMdGNfLoSXbUlWnu1_JPIdIiWrAEsw-nhwDl7h7_9JGbfpMC8DEi3zWNvEc5erpNZAAp0"
+        }
+      description: ''
+      encoded: false
+    OIDCIssuer:
+      value: IBM APIc
+      description: ''
+      encoded: false
+    JWSAlgorithm:
+      value: RS256
+      description: ''
+      encoded: false
 definitions:
   access_token_response:
     type: object
@@ -580,6 +730,12 @@ definitions:
         type: string
       miscinfo:
         type: string
+      consented_on:
+        type: string
+      consented_on_str:
+        type: string
+      grant_type:
+        type: string
   issued_response:
     type: object
     additionalProperties: false
@@ -606,6 +762,18 @@ definitions:
       refreshTokenIssued:
         type: boolean
       miscInfo:
+        type: string
+      consentedOn:
+        type: string
+      appId:
+        type: string
+      org:
+        type: string
+      orgId:
+        type: string
+      catalog:
+        type: string
+      catalogId:
         type: string
   issued_responses:
     type: array

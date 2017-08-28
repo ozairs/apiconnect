@@ -42,7 +42,7 @@
 						},
 						{
 							"key": "scope",
-							"value": "pokemon",
+							"value": "weather",
 							"type": "text",
 							"enabled": true
 						},
@@ -108,7 +108,7 @@
 						{
 							"disabled": false,
 							"key": "scope",
-							"value": "pokemon",
+							"value": "weather",
 							"enabled": true,
 							"type": "text"
 						},
@@ -147,7 +147,7 @@
 						},
 						{
 							"key": "scope",
-							"value": "pokemon",
+							"value": "weather",
 							"type": "text",
 							"enabled": true
 						},
@@ -448,7 +448,7 @@
 						},
 						{
 							"key": "scope",
-							"value": "pokemon",
+							"value": "weather",
 							"type": "text",
 							"enabled": true
 						}
@@ -502,7 +502,7 @@
 						{
 							"disabled": false,
 							"key": "scope",
-							"value": "openid pokemon",
+							"value": "openid weather",
 							"enabled": true,
 							"type": "text"
 						}
@@ -547,7 +547,7 @@
 						},
 						{
 							"key": "scope",
-							"value": "pokemon openid",
+							"value": "weather openid",
 							"type": "text",
 							"enabled": true
 						},

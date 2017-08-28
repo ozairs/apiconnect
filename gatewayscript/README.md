@@ -4,12 +4,13 @@
 * [Ozair Sheikh](https://github.com/ozairs)
 
 **Prerequisites**
-* API Connect Developer Toolkit 5.0.7.1
-* Import the API definitions file from **https://github.com/ozairs/apiconnect/blob/master/gatewayscript/weather-provider-api_1.0.0.yaml**. See instructions [here](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.apionprem.doc/create_api_swagger.html)
+* [API Connect Developer Toolkit 5.0.7.1](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/tapim_cli_install.html)
 
 In this tutorial, you will learn how to modify the API payload / headers using JavaScript by configuring a GatewayScript policy.
 
 **Instructions:** 
+
+* **Note**: If you did not complete previous tutorial, import the API definitions file from **https://raw.githubusercontent.com/ozairs/apiconnect/master/gatewayscript/weather-provider-api_1.0.0.yaml**. See instructions [here](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.apionprem.doc/create_api_swagger.html)
 
 1. Drag the The GatewayScript policy after the **invoke-current** policy (ie `get /current`). 
 	![alt](images/gatewayscript.png)
@@ -29,7 +30,7 @@ In this tutorial, you will learn how to modify the API payload / headers using J
 
 	The `message` context variable is the default context that contains the API runtime context, which includes the JSON body sent back to the consumer. 
 3. Click on the X to close the editor menu and save your changes.
-4. Test the Pokemon API. Click the **Play icon** to open the built-in test tool. Test the **get /current** operation, enter **zipcode** value of `90201`. A single Pokemon item is returned with the additional attribute `platform` containing `Powered by API Connect`.
+4. Test the Weather API. Click the **Play icon** to open the built-in test tool. Test the **get /current** operation, enter **zipcode** value of `90201`. The response is returned with the additional attribute `platform` containing `Powered by API Connect`.
 	```
 	{
 		"zip": "90210",
@@ -40,14 +41,14 @@ In this tutorial, you will learn how to modify the API payload / headers using J
 		"platform": "Powered by IBM API Connect"
 	}
 	```
+	**Important**
+	Context variables in the API assembly provide API transaction information:
+	* **request**: pre-built context variable provides the original request message
+	* **message**: pre-built context variable provides access to the current message in the assembly
+	* **custom**: context variables *created* during the API assembly with unique names and used in subsequent actions, such as GatewayScript.
 
-**Important**
-Context variables in the API assembly provide API transaction information:
-* **request**: pre-built context variable provides the original request message
-* **message**: pre-built context variable provides access to the current message in the assembly
-* **custom**: context variables *created* during the API assembly and used in subsequent actions, such as GatewayScript.
+	Each context variable has additional attributes such as `body`, `headers`, etc ... that provide additional runtime context.
 
-Each context variable has additional attributes such as `body`, `headers`, etc ... that provide additional runtime context.
 5. Inject an HTTP response header in the same GatewayScript policy. Replace the existing code with the following:
 	```
 	//get the runtime API context
@@ -62,14 +63,14 @@ Each context variable has additional attributes such as `body`, `headers`, etc .
 	json.headers.platform = 'Powered by IBM API Connect';
 	apim.setvariable('message.headers', json.headers);
 	```
-6. The built-in test editor does not show custom headers, so you will need to issue a curl command to verify that a new respond header is returned.
+6. The built-in test editor does not show custom headers, so you will need to issue a curl command to verify that a new response header is returned.
 	```
 	 curl https://127.0.0.1:4001/current?zipcode=90210 -H "X-IBM-Client-Id: default" -k -v
 	```
 	
 For more information about writing JavaScript, see [here](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/rapim_gwscript_codesnip.html).
 
-The API Connect assembly code is great but what happens when the service is unavailable or provides an unexpected response. In the [next](#04-handling-api-errors) tutorial, you will learn how to throw and catch errors.
+The API Connect assembly code is great but what happens when the service is unavailable or provides an unexpected response. In the [next](../master/error-handling/README.md) tutorial, you will learn how to throw and catch errors.
 
 **API Integration with XML-based services**
 

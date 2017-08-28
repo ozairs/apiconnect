@@ -1,27 +1,12 @@
 swagger: '2.0'
 info:
-  x-ibm-name: oauth2-oidc-provider
-  title: OAuth2 OIDC Provider
+  x-ibm-name: oauth-redirect
+  title: OAuth2 Provider (Redirect)
   version: 1.0.0
-  description: >-
-    Provide a template on how to enable OIDC for APIC OAuth provider. 
-
-    Authorization Code : the standard OAuth protocol
-
-    Resource Owner Grant Type : the 2 legged owner grant type
-
-    Client Credential : there is no user in this, and thus no id_token will be
-    created
-
-    Skip:
-
-    Implicit : this is a subset of authorization code grant type, public client
-  contact:
-    name: IBM API Connect
 schemes:
   - https
 host: $(catalog.host)
-basePath: /
+basePath: /redirect
 securityDefinitions:
   clientID:
     description: application's client_id
@@ -54,6 +39,11 @@ paths:
           enum:
             - code
             - token
+        - name: client_id
+          in: query
+          description: Application client ID
+          required: true
+          type: string
         - name: scope
           in: query
           description: Scope being requested
@@ -97,7 +87,6 @@ paths:
         issue an
 
         authorization code or access token to the application.
-      security: []
       parameters:
         - name: client_id
           in: formData
@@ -139,6 +128,8 @@ paths:
       responses:
         '200':
           description: Cool
+      security:
+        - clientID: []
   /oauth2/token:
     post:
       consumes:
@@ -274,36 +265,6 @@ paths:
             $ref: '#/definitions/access_token_response'
         '400':
           description: json document that may contain additional details about the failure
-  /oauth2/introspect:
-    post:
-      consumes:
-        - application/x-www-form-urlencoded
-      produces:
-        - application/json
-      summary: Introspect a given access_token supported
-      description: |
-        This endpoint introspects a given access_token
-      security:
-        - clientIdHeader: []
-          clientSecretHeader: []
-      parameters:
-        - name: token
-          in: formData
-          description: String value of the access_token to be introspected
-          required: true
-          type: string
-        - name: token_type_hint
-          in: formData
-          description: This must contain 'access_token' to indicate the token type
-          required: true
-          type: string
-      responses:
-        '200':
-          description: 'json document containing issued information, etc.'
-          schema:
-            $ref: '#/definitions/introspect_response'
-        '401':
-          description: failure
   /oauth2/issued:
     get:
       produces:
@@ -311,7 +272,7 @@ paths:
       summary: Returns list of permission granted to the owner
       description: >
         This endpoint allows the return of all the issued permission for a given
-        authenticated owner per owner authentication 
+        authenticated owner per owner authenti
 
         defined in the x-ibm-configuration section
       security:
@@ -343,6 +304,36 @@ paths:
       responses:
         '200':
           description: OK
+  /oauth2/introspect:
+    post:
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      summary: Introspect a given access_token supported
+      description: |
+        This endpoint introspects a given access_token
+      security:
+        - clientIdHeader: []
+          clientSecretHeader: []
+      parameters:
+        - name: token
+          in: formData
+          description: String value of the access_token to be introspected
+          required: true
+          type: string
+        - name: token_type_hint
+          in: formData
+          description: This must contain 'access_token' to indicate the token type
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 'json document containing issued information, etc.'
+          schema:
+            $ref: '#/definitions/introspect_response'
+        '401':
+          description: failure
 x-ibm-configuration:
   testable: true
   enforced: true
@@ -350,21 +341,26 @@ x-ibm-configuration:
   oauth2:
     client-type: confidential
     scopes:
-      pokemon: Banking Information
-      openid: Enable OIDC
+      weather: Weather info
+      openid: OIDC Connect
+      banking: ''
     grants:
-      - password
       - accessCode
-      - application
       - implicit
+      - password
     identity-extraction:
-      type: default-form
+      type: redirect
+      custom-form:
+        url: 'https://datapower/spoon/sb/utility/custom-login-form'
+      redirect-url: 'https://ozairs:4001/utility/identity-extract/redirect'
     authentication:
       x-ibm-authentication-url:
-        url: 'https://127.0.0.1:443/utility/basic-auth/spoon/spoon'
+        url: 'https://127.0.0.1:9443/utility/identity-extract/redirect/authenticate'
         tls-profile: ''
     authorization:
       type: authenticated
+      custom-form:
+        url: 'https://127.0.0.1:9443/utility/custom-consent-form'
     access-token:
       ttl: 3600
     refresh-token:
@@ -376,149 +372,12 @@ x-ibm-configuration:
       metadata-url:
         url: ''
         tls-profile: ''
+  cors:
+    enabled: true
+  type: oauth
   gateway: datapower-gateway
   assembly:
-    execute:
-      - switch:
-          title: switch
-          case:
-            - condition: >-
-                (((request.verb==='GET')&&(api.operation.path==='/oauth2/authorize'))||((request.verb==='POST')&&(api.operation.path==='/oauth2/authorize'))
-                && new String (apim.getvariable
-                ('message.status.code')).startsWith ('302'))
-              execute:
-                - xslt:
-                    title: xslt
-                    input: false
-                    version: 1.0.0
-                    source: >-
-                      <xsl:stylesheet
-                      xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                      version="1.0"
-                        xmlns:dp="http://www.datapower.com/extensions"
-                        xmlns:apim="http://www.ibm.com/apimanagement"
-                        extension-element-prefixes="dp apim"
-                        exclude-result-prefixes="dp apim">
-                        <xsl:include href="local://isp/policy/apim.setvariable-impl.xsl" dp:ignore-multiple="yes"/>
-                        <xsl:template match="/">
-                          <xsl:if test="starts-with(dp:http-response-header('x-dp-response-code'), '302') and
-                                        contains(dp:http-response-header('Location'), 'access_token')">
-                            <xsl:call-template name="apim:setVariableImpl">
-                              <xsl:with-param name="rawName" select="'oidc-location'"/>
-                              <xsl:with-param name="rawValue" select="dp:http-response-header('Location')"/>
-                              <xsl:with-param name="action" select="'set'"/>
-                            </xsl:call-template>
-                            <xsl:call-template name="apim:setVariableImpl">
-                              <xsl:with-param name="rawName" select="'oidc-credential'"/>
-                              <xsl:with-param name="rawValue" select="string(dp:variable('var://context/_apimgmt/authenticated-username'))"/>
-                              <xsl:with-param name="action" select="'set'"/>
-                            </xsl:call-template>
-                          </xsl:if>
-                        </xsl:template>
-                      </xsl:stylesheet>
-            - condition: >-
-                ((request.verb==='POST')&&(api.operation.path==='/oauth2/token'))
-              execute:
-                - gatewayscript:
-                    title: gatewayscript
-                    version: 1.0.0
-                    source: >-
-                      var _apimgmt = session.name('_apimgmt');
-
-                      var grantType =
-                      _apimgmt.getVariable('requested-grant-type');
-
-
-                      if (grantType === 'password' ||
-                          grantType === 'code') {
-                        // get scope
-                        var splitScope = (apim.getvariable('message.body').scope || '').split(' ');
-                        for (var i = 0; i < splitScope.length; i++) {
-                          if (splitScope[i] === 'openid') {
-                            var userIdentity = _apimgmt.getVariable('authenticated-username');
-                            apim.setvariable('oidc-credential', userIdentity, 'set');
-                          }
-                        }
-                      }
-          version: 1.0.0
-      - if:
-          title: if
-          condition: apim.getvariable('oidc-credential') !== undefined
-          execute:
-            - set-variable:
-                title: set-variable
-                actions:
-                  - set: iss.claim
-                    value: Spoon Bank Inc
-                  - set: sign-jwk
-                    value: >-
-                      {   "kty": "RSA",   "d":
-                      "AQZvY1Z3Jymu7eKDAoZ9P-v5QvqCMb7EtDfTkW-CIOsvh4jVPIK-gwmoEqq4ic8WVOfQAEN4hN5SMuMoJu0xGpGtqIbYTl1yoJ22zFXXCWg0lv1InQmkg6EuaOzncSL7gnXxkWQUCbbtxMMwulKaQLUIR1vOGhPIjiNWrhwNxz2igbTHUEhPYaxzXMFukJiYnmeUd5FGq_QnhR_R4CgQt3yTKaAEWF2LlaejeDkqMXHCSuXRq-Ua3Y1IYzn3AXPoF9nfAV5QJezITDdSPAK5_hkKSLzb92Y6Pg7jXhH3DgfLVolpxrZWmK58P2IGz1uhuw9Nh_4a0_gw5xTNBNbAPSTOI6S9X7pt1rTSShYBOEJZ3MF7w3NDH2dsvkjZcdUxgvaHTrZKDtg2OJP0Go1sePvJHZJ1S0jjrSXMQyTagvjVhO0FQ_LuFrEhKPDpeXmyvVUJ8ud9oboJ_PbeL8bxOzp8HD6MI2SjrjtZ4SCmz3afdNKoS0_0Dk3i-JaV9kxVqUQYAGwRoccgh8aoIARMHGjlPP97lJkdIOxHb8KAjxa0GX5ZFz77xjz9P0E54u_TmKXj4iVGuY-yA33TNC0muwzm5q2HOlUg7DhPUryGGoLTMv7hChuFj9J5c6BXvvVe3ukfQkfsTglS2JuMsGDOcLFCd5SGoa9myu5xD-uqhG2p",  
-                      "e": "AQAB",   "use": "sig",   "kid": "spoon",   "alg":
-                      "RS512",   "n":
-                      "At1JEfmAE-rOFUyNo1oj-o5cLC3w6z18gz3wA1oB3DFh1a1t3okvT-KbwPHQONa2QCKheF7VeEa3RJc4l7n5CK-CBuGzENw43YZXJFz8HfwdSSibzB18c0abP89IF0CnW2zJCcO-4bkHNgxZg_tg5wfbuXMQ3JTFkuAgrArpzZchbIl9ihjnPBq65DsxY3RwO-aqf03bGbwKXGUlE4wY7IKF25ofomrwnNrew4eS4iBenTxaQosaWAnBxV791-6Nu7fodcKcieHg3GG7xufeN7gOQH7VmZSNt5r9pFq71rsGNsb5ncrcT0t76Tw9RHMjYanY5YGpmftyfwqvuERsiGmZFrzHd_iBvLgZYWI8JRPbWgGniv493MFE5pP-NnHTTJU6sW313Z0soNH3tt5dI-2ARN6P3RrUDfusRCxwmqiYdjXHdo67WzXPvYmAs7Pdmp2zlgOdPCSokRw2D3Oq1_lHIsIaTrNY7sTU-jwLpZBZFAbhZoQMPFwoyDlZpUwHsChvN42ZH8tnvggKV_yDoq2wyA8nfPdlVIY86nLaXYP873E661eAONbZxEBntZMozYVzraWkwy3VxG2HgnD89UXZuPzBKwnt0PW_R554jrEYl2-8KT1vEWDrBxBPTm0Q6Js444U6NNmoHD1UIWW0yt3P86lTjWJWPTciTJBt_ann"
-                      }
-                  - set: private.claim
-                    value: '{"disclaimer":"for demo purpose"}'
-                version: 1.0.0
-            - jwt-generate:
-                title: jwt-generate
-                iss-claim: iss.claim
-                exp-claim: 3600
-                version: 1.0.0
-                jwt: idtoken
-                jti-claim: true
-                sub-claim: oidc-credential
-                aud-claim: client.app.id
-                private-claims: private.claim
-                jws-alg: RS512
-                jws-jwk: sign-jwk
-            - gatewayscript:
-                title: gatewayscript
-                version: 1.0.0
-                source: >-
-                  var grantType =
-                  session.name('_apimgmt').getVariable('requested-grant-type');
-
-
-                  if (grantType === 'implicit') {
-                    // regression in 5070 will not allow access, and modification to the location header
-                    var location = apim.getvariable('oidc-location') + '&id_token=' + apim.getvariable("idtoken");
-                    // work around is to use xslr
-                    apim.setvariable('oidc-location', location);
-                  }
-
-                  else {
-                    var token = apim.getvariable("message.body");
-                    token["id_token"] = apim.getvariable("idtoken");
-                    apim.setvariable("message.body", JSON.stringify(token));
-                  }
-            - if:
-                title: if
-                condition: >-
-                  new String (apim.getvariable
-                  ('message.status.code')).startsWith('302')
-                execute:
-                  - xslt:
-                      title: xslt
-                      input: false
-                      version: 1.0.0
-                      source: >-
-                        <xsl:stylesheet
-                        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                        version="1.0"
-                          xmlns:dp="http://www.datapower.com/extensions"
-                          xmlns:apim="http://www.ibm.com/apimanagement"
-                          extension-element-prefixes="dp apim"
-                          exclude-result-prefixes="dp apim">
-                          <xsl:include href="local://isp/policy/apim.setvariable-impl.xsl" dp:ignore-multiple="yes"/>
-                          <xsl:template match="/">
-                            <xsl:variable name="loc" select="apim:getVariableImpl('oidc-location')"/>
-                            <dp:set-http-response-header name="'Location'" value="$loc"/>
-                          </xsl:template>
-                        </xsl:stylesheet>
-                version: 1.0.0
-          version: 1.0.0
+    execute: []
     catch: []
 definitions:
   access_token_response:
@@ -540,6 +399,37 @@ definitions:
         type: string
       refresh_token:
         type: string
+  issued_response:
+    type: object
+    additionalProperties: false
+    required:
+      - clientId
+      - owner
+      - scope
+      - issuedAt
+      - expiredAt
+      - refreshTokenIssued
+    properties:
+      clientId:
+        type: string
+      clientName:
+        type: string
+      owner:
+        type: string
+      scope:
+        type: string
+      issuedAt:
+        type: string
+      expiredAt:
+        type: string
+      refreshTokenIssued:
+        type: boolean
+      miscInfo:
+        type: string
+  issued_responses:
+    type: array
+    items:
+      $ref: '#/definitions/issued_response'
   introspect_response:
     type: object
     additionalProperties: false
@@ -580,34 +470,3 @@ definitions:
         type: string
       miscinfo:
         type: string
-  issued_response:
-    type: object
-    additionalProperties: false
-    required:
-      - clientId
-      - owner
-      - scope
-      - issuedAt
-      - expiredAt
-      - refreshTokenIssued
-    properties:
-      clientId:
-        type: string
-      clientName:
-        type: string
-      owner:
-        type: string
-      scope:
-        type: string
-      issuedAt:
-        type: string
-      expiredAt:
-        type: string
-      refreshTokenIssued:
-        type: boolean
-      miscInfo:
-        type: string
-  issued_responses:
-    type: array
-    items:
-      $ref: '#/definitions/issued_response'

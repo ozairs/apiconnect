@@ -350,7 +350,7 @@ x-ibm-configuration:
   oauth2:
     client-type: confidential
     scopes:
-      weather: Banking Information
+      weather: Weather Information
       openid: Enable OIDC
     grants:
       - password

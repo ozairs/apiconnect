@@ -7,7 +7,7 @@ In this tutorial, you will package and deploy API definitions to IBM Blumix so t
 
 **Prerequisites:** 
 
-* API Connect Developer Toolkit 5.0.7.1
+* [API Connect Developer Toolkit 5.0.7.1](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/tapim_cli_install.html)
 * Import the API definitions file from 
 	* [https://github.com/ozairs/apiconnect/blob/master/bluemix/weather-provider-api_1.0.0.yaml]() 
 	* [https://github.com/ozairs/apiconnect/blob/master/bluemix/weather_1.0.0.yaml](). 

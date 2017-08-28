@@ -3,19 +3,22 @@
 **Authors** 
 * [Ozair Sheikh](https://github.com/ozairs)
 
+Special thanks to [Shiu-Fun Poon](https://github.com/shiup) for the API assets and knowledge transfer. 
+
 **Prequisites**
 
-* API Connect Developer Toolkit 5.0.7.1
-* Import API definitions file: oauth, utility and Weather. Click the **Add (+)** button and select **Import API from a file or URL**. 
-	* [https://github.com/ozairs/apiconnect/blob/master/oauth/weather-provider-api_1.0.0.yaml]() 
-	* [https://github.com/ozairs/apiconnect/blob/master/oauth/oauth_1.0.0.yaml](). 
-	* [https://github.com/ozairs/apiconnect/blob/master/oauth/utility_1.0.0.yaml](). 
-	
-	For more information on setting up OAuth, see the article [here](https://www.ibm.com/support/knowledgecenter/en/SSFS6T/com.ibm.apic.toolkit.doc/tutorial_apionprem_security_OAuth.html).
+* [API Connect Developer Toolkit 5.0.7.1](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/tapim_cli_install.html)
 * For testing, you will need to download [Postman](https://www.getpostman.com/).
-* Download the Postman collection [here](https://www.getpostman.com/collections/951c78382a60b7f7be67)
+* Download the Postman collection [here](https://www.getpostman.com/collections/9ab248322bd2f0a75eea)
+
+For more information on setting up OAuth, see the article [here](https://www.ibm.com/support/knowledgecenter/en/SSFS6T/com.ibm.apic.toolkit.doc/tutorial_apionprem_security_OAuth.html).
 
 **Instructions:** 
+
+* **Note:** If you did not complete previous tutorial, import API definitions file: oauth, utility and Weather. Click the **Add (+)** button and select **Import API from a file or URL**. 
+	* [https://raw.githubusercontent.com/ozairs/apiconnect/master/oauth/weather-provider-api_1.0.0.yaml]() 
+	* [https://raw.githubusercontent.com/ozairs/apiconnect/master/oauth/oauth_1.0.0.yaml](). 
+	* [https://raw.githubusercontent.com/ozairs/apiconnect/master/oauth/utility_1.0.0.yaml](). 
 
 In this tutorial, you will learn how to obtain a new access token from a refresh token, revoke tokens, and obtain token details using OAuth introspection.
 
@@ -55,7 +58,7 @@ The Postman collection includes helpful OAuth requests, lets test each of them t
 	```
 	[]
 	```
-5. Use the **OAuth Refresh Token** request to obtain a new access token when an access token is expired without going through the OAuth handshake again. If you still have the  **OAuth Password** response, copy the refresh token onto your clipboard (otherwise submit the request again). 
+5. Use the **OAuth Refresh Token** request to obtain a new access token when an access token is expired without going through the OAuth handshake again. Submit the **OAuth Password** request again.
 
 6. Open the **OAuth Refresh Token** request and paste the refresh token into the existing field within the *Body*. This will return both a new access token and refresh token.
 	```
@@ -91,7 +94,7 @@ The Postman collection includes helpful OAuth requests, lets test each of them t
 	"client_name": "default"
 	}
 	```
-8. Optionally, revoke the token using the **OAuth App Revocation** request and then issue the **OAuth Introspection** call again, you will get an error because the token is not valid.
+8. Optionally, revoke the token using the **Single Token Revocation** request and then issue the **OAuth Introspection** call again, you will get an error because the token is not valid.
 	```
 	{
 	"active": false
@@ -99,3 +102,5 @@ The Postman collection includes helpful OAuth requests, lets test each of them t
 	```
 	
 In this tutorial, you learned about the lifecycle of OAuth tokens. Specifically, you obtained a new access token from a refresh token. Revoked and listed tokens and obtained the details of an access token.
+
+**Next Tutorial**: [Enforce API access with Third-party OAuth providers](../master/oauth-third-party/README.md)

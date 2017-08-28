@@ -4,7 +4,7 @@ In this tutorial, you will protect access to your APIs using [auth0.com](https:/
 
 **What is Auth0?**
 
-Auth0 is a cloud-based solution that provides integration with multiple identity providers, such as Google, Facebook, and more. Third-party Web and Mobile applications can easily provide authentication services using Auth0 without having to worry about the integration logic with the identity provider. This helps accelerate delivery of digital solutions and not require technical investment in authenticaiton capabilities.
+Auth0 is a cloud-based solution that provides integration with multiple identity providers, such as Google, Facebook, and more. Third-party Web and Mobile applications can easily provide authentication services using Auth0 without having to worry about the integration logic with the identity provider. This helps accelerate delivery of digital solutions and not require technical investment in authentication capabilities.
 
 **Duration**: 20 minutes
 
@@ -13,7 +13,6 @@ Auth0 is a cloud-based solution that provides integration with multiple identity
 **Prerequisites:** 
 * [API Connect Developer Toolkit 5.0.7.1](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/tapim_cli_install.html)
 * [curl](https://curl.haxx.se/) (or similar tool to issue RESTful requests)
-* API Connect on [Bluemix](https://bluemix.net) account
 
 In this tutorial, you will control access to the backend service by requiring a valid JWT (JSON Web Token). For more information about JWT, see [here](https://jwt.io). JWT is a JSON-based token that provides a series of claims that are cryptographically verifyable. The base claim is a subject-audience pair which asserts the token for a particular user.
 
@@ -37,7 +36,7 @@ The following instructions provide guidance on how to setup an auth0 account to 
 	```
 4. In the **Scopes** section create new scopes called `read` and `write` and add a description.
 5. In the **Non Interactive Clients** section, expand the `Weather Client` and select the previously created scopes and click **Update**. Click **Continue** to accept the warning message.
-6. In the **Test** section, copy and paste the curl command in a command prompt (if curl is unavailable, use  alternatives).
+6. In the **Test** section, copy and paste the curl command in a command prompt (if curl is unavailable, use an alternative approach).
 	```
 	$ curl --request POST \
 	>   --url https://ozairs.auth0.com/oauth/token \
@@ -55,17 +54,11 @@ Lets switch back to API Connect and add API assembly policies to validate the Au
 
 *API Connect Setup*
 
-1. Using the command prompt, create a directory for your project and login to the API designer.
-	```
-	mkdir apic-workspace
-	cd apic-workspace
-	apic edit
-	```
-2. In the API designer, click the **APIs** tab (if not selected), click the **Add (+)** button and select **Import API from a file or URL**.
-3. Click **Import from URL ...** and enter **https://raw.githubusercontent.com/ozairs/apiconnect/master/jwt/weather-provider-api_1.0.0.yaml**. Click **Import** to finish the task.
+1. In the API designer, click the **APIs** tab (if not selected), click the **Add (+)** button and select **Import API from a file or URL**.
+2. Click **Import from URL ...** and enter **https://raw.githubusercontent.com/ozairs/apiconnect/master/jwt/weather-provider-api_1.0.0.yaml**. Click **Import** to finish the task.
 4. Open the Weather API. In the **Design** tab, select Paths and click the + button to add a new Path named `/weather` to the existing Weather API. Leave the default GET operation. Click Save once complete.
 5. Click the **Assemble** tab and select the existing  `operation-switch` policy. Add a new case for the `get /weather`.
-6. For the `get /weather` case, add the following policies. You need to drag the assembly policies into the for the `get /weather` row.
+6. For the `get /weather` case, add the following policies. You need to drag the assembly policies into the `get /weather` row.
 	* Add a `Invoke` action, named `get-jwk-key` with the following:
     	* **URL**: https://ozairs.auth0.com/.well-known/jwks.json
 		* **Cache Type**: Time to Live
@@ -84,7 +77,7 @@ Lets switch back to API Connect and add API assembly policies to validate the Au
 		* **Audience Claim**: .*\.apiconnect\.com
 		* **Verify Crypto JWK variable name**: jwk-key
 		
-		**Note**: You can create a stronger regular expression in the issuer and audience claims field for enhanced security if you want to control access from between specific users and providers
+		**Note**: You can create a stronger regular expression in the issuer and audience claims field for enhanced security if you want to control access between specific users and providers
 
 	* Add a GatewayScript policy to return the decoded claims
 	```

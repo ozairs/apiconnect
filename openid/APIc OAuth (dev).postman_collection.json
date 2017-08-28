@@ -1,0 +1,795 @@
+{
+	"variables": [],
+	"info": {
+		"name": "APIc OAuth (dev)",
+		"_postman_id": "f4ea081f-bd24-a711-f12b-38cfa5871ee5",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "OAuth Password",
+			"request": {
+				"url": "https://{{host}}/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "{{scope}}",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OIDC Password",
+			"request": {
+				"url": "https://{{host}}/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "{{scope}} openid",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Implicit (public)",
+			"request": {
+				"url": "https://{{host}}/oauth2/authorize",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"disabled": false,
+							"key": "response_type",
+							"value": "token",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "redirect_uri",
+							"value": "{{redirect_uri}}",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "scope",
+							"value": "{{scope}}",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Application (client_cred)",
+			"request": {
+				"url": "https://{{host}}/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "{{scope}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						}
+					]
+				},
+				"description": "client_credentails grant type"
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Access Code",
+			"request": {
+				"url": {
+					"raw": "https://127.0.0.1:4001/oauth2/authorize?scope=weather&response_type=code&client_id=default&redirect_uri=https://www.getpostman.com/oauth2/callback",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "4001",
+					"path": [
+						"oauth2",
+						"authorize"
+					],
+					"query": [
+						{
+							"key": "scope",
+							"value": "weather",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "response_type",
+							"value": "code",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "client_id",
+							"value": "default",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://www.getpostman.com/oauth2/callback",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "response_type",
+							"value": "code",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "default",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "SECRET",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://www.getpostman.com/oauth2/callback",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "weather",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OIDC Implicit (Hybrid)",
+			"request": {
+				"url": {
+					"raw": "https://{{host}}/oauth2/authorize?scope=weather&response_type=token%20id_token&client_id={{client_id}}&redirect_uri={{redirect_uri}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"oauth2",
+						"authorize"
+					],
+					"query": [
+						{
+							"key": "scope",
+							"value": "weather",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "response_type",
+							"value": "token%20id_token",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{redirect_uri}}",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"disabled": false,
+							"description": "",
+							"key": "client_secret",
+							"value": "SECRET",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OIDC Access Code (Hybrid)",
+			"request": {
+				"url": {
+					"raw": "https://{{host}}/oauth2/authorize?scope=openid {{scope}}&response_type=id_token%20code&client_id={{client_id}}&redirect_uri={{redirect_uri}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"oauth2",
+						"authorize"
+					],
+					"query": [
+						{
+							"key": "scope",
+							"value": "openid {{scope}}",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "response_type",
+							"value": "id_token%20code",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{redirect_uri}}",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"disabled": false,
+							"key": "response_type",
+							"value": "code",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "client_id",
+							"value": "default",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "redirect_uri",
+							"value": "https://www.getpostman.com/oauth2/callback",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "scope",
+							"value": "openid weather",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Code to Token",
+			"request": {
+				"url": "https://{{host}}/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{redirect_uri}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						},
+						{
+							"key": "code",
+							"value": "AAL8k4uaJj3PCi7L026rR1BheJkzWKzR7vWgWvo--DBqYRVckkwcLLtZz6ulJygPYzCn0la1ZxjLFk0EApI1ktSJERm6gEnbjqruNQuJbW4NKNG01FcN25ZGi7JmKSlfsPA",
+							"type": "text"
+						}
+					]
+				},
+				"description": "This converts the temporary authorization code to token"
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Token List",
+			"request": {
+				"url": "https://{{host}}/oauth2/issued",
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-ibm-client-id",
+						"value": "default",
+						"description": ""
+					},
+					{
+						"key": "x-ibm-client-secret",
+						"value": "SECRET",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Introspection",
+			"request": {
+				"url": "https://{{host}}/oauth2/introspect",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"disabled": false,
+							"key": "token_type_hint",
+							"value": "access_token",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "token",
+							"value": "AAEHZGVmYXVsdHVAyQEkaLzeFLos85eBdVuNJzBuko7hRJgQtdvqFomrwCBcq_ufiDFh6LY5Kf8NtQFCNa9B6FPVQKIFcsI-ZKmulJb0-d9mlMKpoO933JgSAaIfDDB7kkKL4IGQ8Nbg3A",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Refresh Token",
+			"request": {
+				"url": "https://{{host}}/oauth2/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"disabled": false,
+							"key": "grant_type",
+							"value": "refresh_token",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"key": "refresh_token",
+							"value": "AAHITNhZfp7u6tsR0JFCfZJEzQpLodFwsHspcwwEtpI29IN8SCK_ktu8Mu1DYV-2yFmJXhTXX6eoC7KJWBPrxO9rQ05HoKGUurZwCXG7PGevVSFCLDhFJqoSV_ZV8tBRAwK3s3jXLTWTnQAQag28hgMb",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth App Revocation",
+			"request": {
+				"url": {
+					"raw": "https://{{host}}/oauth2/issued?client-id={{client_id}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"oauth2",
+						"issued"
+					],
+					"query": [
+						{
+							"key": "client-id",
+							"value": "{{client_id}}",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "x-ibm-client-id",
+						"value": "default",
+						"description": ""
+					},
+					{
+						"key": "x-ibm-client-secret",
+						"value": "SECRET",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Single Token Revocation (refresh token)",
+			"request": {
+				"url": "https://{{host}}/oauth2/revoke",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic c3Bvb246c3Bvb24=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"disabled": false,
+							"description": {
+								"content": "",
+								"type": "text/plain"
+							},
+							"key": "token_type_hint",
+							"value": "refresh_token",
+							"type": "text"
+						},
+						{
+							"disabled": false,
+							"description": {
+								"content": "",
+								"type": "text/plain"
+							},
+							"key": "token",
+							"value": "AAEdQfEGA9wwu6ASDvFA8roYBfnLwGC5qfvRseOCvASV__aVkcz5bWqzjOHTsxctJ_0SwkHiuMB4dUab7jUpFbxTgfqZvXXJSv8IhuppfqwwH8PvpYTaIdNkYly20_2-rt4F9LFlvmHhvMHNCLwQzRkg",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "OAuth Single Token Revocation (access token)",
+			"request": {
+				"url": "https://{{host}}/oauth2/revoke",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "{{basic_auth_revocation}}",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "token_type_hint",
+							"value": "access_token",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "token",
+							"value": "AqAIHZGVmYXVsdGO5RWIXBBI5536aRdGjL6QmtHjjxL1HBvlmuKdikHVSOaZA_jqhyIPFzH6ay0QOH5KY0nIe8A-Pi0Zk57H-95PU-Z3RG27tTfOVGHo0uvZV8yuwCQswqYPUGAP5jANzPgh_C5izXJzi46q5HcFshyk",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Weather (Resource Call)",
+			"request": {
+				"url": {
+					"raw": "https://{{host}}/current?zipcode=90210",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"current"
+					],
+					"query": [
+						{
+							"key": "zipcode",
+							"value": "90210",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-ibm-client-id",
+						"value": "{{client_id}}",
+						"description": ""
+					},
+					{
+						"key": "x-ibm-client-secret",
+						"value": "{{client_secret}}",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer AAEHZGVmYXVsdIX4lOcqAfmg3xnrSMGmiqTLPhcQqFluuLdkWqxsaxudVMSBGBFY4KKdTa8NP7S3tJGi8K1vpDSam86j6W1Feaa-l5VnuKOMETEQTNJNiwVXJl3eUNwDfw67pwpP0dg6e_VcUA1VnjnzDiAHVQyHKm8",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

@@ -1,4 +1,4 @@
-# 1. Best Practices using DataPower with API Connect Developer Toolkit
+# Getting Started with the API Connect Developer Toolkit
 
 **Authors** 
 * [Tony Ffrench](https://github.com/tonyffrench)
@@ -7,10 +7,10 @@
 **Duration:** 5 minutes
 
 **Prerequisites**
-* API Connect Developer Toolkit 5.0.7.1
-* Import the API definitions file from **https://github.com/ozairs/apiconnect/blob/master/getting-started/weather-provider-api_1.0.0.yaml**. See instructions [here](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.apionprem.doc/create_api_swagger.html)
+* [API Connect Developer Toolkit 5.0.7.1](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/tapim_cli_install.html)
+* **Optional**: Clone the GitHub repository, either using the `git` command-line tool (`https://github.com/ozairs/apiconnect.git`) or downloading the zip file from [here](https://github.com/ozairs/apiconnect/archive/master.zip). The artifacts can be referenced directly from the Web; however, you can download the repository if you don't have Internet connectivity.
 
-In this tutorial, you will learn best practices on using the API Connect Developer toolkit with DataPower Gateway to expose an existing REST service as an API and test it directly within the tool.
+In this tutorial, you will learn how to setup the API Connect Developer toolkit using the DataPower Gateway to expose an existing REST service as an API and test it directly within the tool.
 
 **Instructions:** 
 
@@ -33,17 +33,16 @@ In this tutorial, you will learn best practices on using the API Connect Develop
 		"state":"California"
 	}
 	```
-3. Import API definitions file
-	1. Click the **Add (+)** button and select **Import API from a file or URL**.
-    2. Click **Select File** and navigate to **getting-started/weather-provider-api_1.0.0.yaml**. Click **Import** to finish the task.
-    3. Click the **Weather Provider API** API. In the **Design** tab, make a note of a few items:
+3. Import Weather API definitions file. Click the **Add (+)** button and select **Import API from a file or URL**. 
+	* [https://raw.githubusercontent.com/ozairs/apiconnect/master/getting-started/weather-provider-api_1.0.0.yaml]() 
+    * Click the **Weather Provider API** API. In the **Design** tab, make a note of a few items:
     	* API exposed on the path `/current` & `/today`
 		![alt](images/paths.png)
 		* Click the **Assemble** tab at the top. You will notice multiple `Invoke` actions. It currently references a service deployed [here] (https://myweatherprovider.mybluemix.net/current).
 		
 The API designer includes a built-in test tool, so you don't need any external tool to perform a quick validation. We need to setup a few things before we start testing.
 
-5. Start the Gateway by clicking the Play button at the bottom. Wait till the gateway is fully started - it may take a minute or so. 
+4. Start the Gateway by clicking the Play button at the bottom. Wait till the gateway is fully started - it may take a few minutes. 
 
   The first time you start Gateway, it will install the pre-requisite components - two docker containers. Examine the details from the command prompt with the command:
   ```
@@ -68,6 +67,6 @@ The test tool did a little bit of magic by injecting a client ID into the header
 
 7. Repeat the curl command a few more times. Notice that the API returns headers with `x-ratelimit-remaining and x-ratelimit-limit`. The API gateway adds these response headers to provide a hint to the consumer on the number of requests they are allowed to execute within a particular time period. Although, we did not define a rate limit for the API, a default rate limit policy is enforced. You will learn more about rate limit when we talk about packaging our API for deployment in a standalone development environment.
 
-In this tutorial, you learned best practices using DataPower with the API Connect developer toolkit when deploying an API definition to expose an existing REST service as an API.
+In this tutorial, you learned how to setup install the API Connect developer toolkit with DataPower docker when deploying an API definition to expose an existing REST service as an API.
 
 **Next Tutorial**: [Build conditional flows for dynamic API execution](../master/conditional/README.md)
