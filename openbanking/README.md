@@ -30,7 +30,7 @@ Financial service providers cannot do this alone. They need to engage with the r
 
 **Prerequisites:** 
 
-* [API Connect Developer Toolkit 5.0.7.1+](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/tapim_cli_install.html)
+* [API Connect Developer Toolkit 5.0.8.0+](https://www.ibm.com/support/knowledgecenter/SSMNED_5.0.0/com.ibm.apic.toolkit.doc/tapim_cli_install.html)
 * For testing, you will need [Postman](https://www.getpostman.com/).
 * Download the Postman collection [here](https://www.getpostman.com/collections/9ab248322bd2f0a75eea)
 
