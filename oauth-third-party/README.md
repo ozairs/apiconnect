@@ -49,7 +49,7 @@ API Connect defines an interface with the third-party introspection that require
 	* In the **Security** section, create a new security requirement (click +) and select  **api-key-1 (API Key)** and  **oauth-third-party (OAuth)**. Click the up array to move it as **Option 1**.
 	* Click Save.
 
-	![alt](images/introspect_url.png)
+![alt](images/introspect_url.jpg)
 	
 6. Obtain an access token from the Third-Party OAuth provider (using the resource owner grant type) using Postman.
 	* Open the request called `OAuth Password`. Select the **Body** link and notice that a default client id of `default` and client secret of `SECRET` is pre-configured. Adjust the values of your endpoint to `https://127.0.0.1:4001/third-party/oauth2/token`.
