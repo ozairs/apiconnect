@@ -122,3 +122,5 @@ Summary of the JWT security actions:
  - `jwt-generate` (not used in tutorial): generate jwt token with identity assertion claims
 
 In this tutorial, you used a JWT validate policy to verify the JSON Web signature (JWT) of a JWT token that was generated from Auth0 (external identity provider).
+
+**Next Tutorial**: [Protect access to APIs using OAuth](../master/oauth-/README.md)

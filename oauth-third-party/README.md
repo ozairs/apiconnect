@@ -30,7 +30,7 @@ For more information on setting up OAuth, see the article [here](https://www.ibm
 	3. After the App developer creates an application, it wil make a note of the published OAuth endpoint in the dev portal, which should point directly to the third-party OAuth provider. The API enforcement point will still be API Connect. This is the key point, API Connect does not participate in the OAuth authentication flow, it will ONLY perform token validation to protect access to the API resource.
 		**Example**: 
 		* OAuth endpoints: `https://<third-party-oauth-provider>/oauth2/token` & `https://<third-party-oauth-provider>/oauth2/authorize`
-		# API Resource endpoint: `https://<api-connect-endpoint>/weather/current`
+		* API Resource endpoint: `https://<api-connect-endpoint>/weather/current`
 	4. The App developer application will obtain an access token from the third-party OAuth endpoint. It will then call the API Resource endpoint (in API Connect).
 	5. API Connect OAuth provider will extract the token from the message and perform an OAuth introspection lookup against the third-party OAuth provider (either directly or via a microservice) to validate the OAuth token. If successful, it will then execute the Assembly policies, where it will proxy the request to the backend API resource.
 
@@ -50,6 +50,7 @@ API Connect defines an interface with the third-party introspection that require
 	* Click Save.
 
 	![alt](images/introspect_url.png)
+	
 6. Obtain an access token from the Third-Party OAuth provider (using the resource owner grant type) using Postman.
 	* Open the request called `OAuth Password`. Select the **Body** link and notice that a default client id of `default` and client secret of `SECRET` is pre-configured. Adjust the values of your endpoint to `https://127.0.0.1:4001/third-party/oauth2/token`.
 	* Submit the request and validate that you get back an access token.

@@ -377,7 +377,7 @@ x-ibm-configuration:
   oauth2:
     client-type: confidential
     scopes:
-      weather: Banking Information
+      weather: Weather Information
       openid: Enable OIDC
     grants:
       - password
@@ -385,10 +385,10 @@ x-ibm-configuration:
       - application
       - implicit
     identity-extraction:
-      type: default-form
+      type: basic
     authentication:
       x-ibm-authentication-url:
-        url: 'https://192.168.1.66:4002/utility/basic-auth/spoon/spoon'
+        url: 'https://$(api.endpoint.address):9443/utility/basic-auth/spoon/spoon'
         tls-profile: ''
     authorization:
       type: authenticated
@@ -403,6 +403,9 @@ x-ibm-configuration:
     refresh-token:
       count: 2048
       ttl: 2682000
+    scope-validators:
+      application:
+        url: 'https://127.0.0.1:9443/utility/provider/scope-check/application'
   gateway: datapower-gateway
   assembly:
     execute:
