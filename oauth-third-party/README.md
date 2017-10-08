@@ -12,7 +12,11 @@ Special thanks to [Shiu-Fun Poon](https://github.com/shiup) for the API assets a
 
 **Instructions:** 
 
-API Connect ships with a built-in OAuth provider that provides complete OAuth authorization server capabilities, such as grant validation, identity extraction, authentication, authorization, token management, introspection, and more. The OAuth provider in API connect is able to generate and validate access tokens to secure backend resources. More specifically, when API Connect generates the OAuth token, it knows exactly how to validate it. If your using a non-API Connect OAuth authorization server to generate OAuth tokens (such as IBM Security Access Manager (ISAM)), then API Connect can still validate those token but you will need to tell it how to validate non-API connect generated tokens. In this tutorial, you will learn how to configure API Connect to validate a third-party access token using the introspection callout feature, based on [RFC 7622](https://tools.ietf.org/html/rfc7662). Even if the third-party oauth provider does not support the standard introspection lookup but supports an alternative approach to token validation, you can proxy to a microservice that can perform the token validation based on its supported interface. In this scenario, API Connect performs no token management capabilities (generate, revoke, refresh or introspect access tokens), you will need to use the third-party OAuth server directly for these operations.
+API Connect ships with a built-in OAuth provider that provides complete OAuth authorization server capabilities, such as grant validation, identity extraction, authentication, authorization, token management, introspection, and more. The OAuth provider in API connect is able to generate and validate access tokens to secure backend resources. More specifically, when API Connect generates the OAuth token, it knows exactly how to validate it. 
+
+If your using a non-API Connect OAuth authorization server to generate OAuth tokens (such as IBM Security Access Manager (ISAM)), then API Connect can still validate those token but you will need to tell it how to validate non-API connect generated tokens. 
+
+In this tutorial, you will learn how to configure API Connect to validate a third-party access token using the introspection callout feature, based on [RFC 7622](https://tools.ietf.org/html/rfc7662). Even if the third-party oauth provider does not support the standard introspection lookup but supports an alternative approach to token validation, you can proxy to a microservice that can perform the token validation based on a supported interface. In this scenario, API Connect performs no token management capabilities (generate, revoke, refresh or introspect access tokens), you will need to use the third-party OAuth server directly for these operations.
 
 For more information on setting up OAuth, see the article [here](https://www.ibm.com/support/knowledgecenter/en/SSFS6T/com.ibm.apic.toolkit.doc/tutorial_apionprem_security_OAuth.html).
 
@@ -38,9 +42,12 @@ For more information on setting up OAuth, see the article [here](https://www.ibm
 
 	![alt](images/oauth_introspection.jpg)
 
-2. Navigate to the folder `https://github.com/ozairs/apiconnect/blob/master/utility/third-party` directory and open the `introspect.js` file. This file will simulate the OAuth introspection endpoint in the API definition.
+2. Navigate to the folder `https://github.com/ozairs/apiconnect/blob/master/utility/third-party` directory and open the `introspect.js` file. This file will simulate the OAuth introspection endpoint (of the third party).
 	
-API Connect defines an interface with the third-party introspection that requires an http response code of 200 and a JSON element named `active` with the value `true`. In the code, the key part is `var response = { "active": true };` and `apim.setvariable('message.status.code', 200);`. Read the code to understand the input to the request and the expected response. This code does not perform any token validation, it accept any access token, but it can easily be modified to call an third-party OAuth provider via the `url-open` function. 
+	API Connect defines an interface with the third-party introspection that requires an http response code of 200 and a JSON element named `active` with the value `true`. 
+
+	In the code, the key part is `var response = { "active": true };` and `apim.setvariable('message.status.code', 200);`. Read the code to understand the input to the request and the expected response. This code does not perform any token validation, it accepts any access token, but it can easily be modified to call an third-party OAuth provider via the `url-open` function. 
+
 3. Open the API designer and select the `utility` API. This API will simulate the third-party introspection lookup (it uses the `introspect.js` code). 
 4. Click the **Assemble** tab and select the `switch` statement with the condition `/third-party-oauth/introspect` and its corresponding GatewayScript. Its the same code you just examined. If you made any changes, you can copy the code from `introspect.js` and paste it here or leave it as-is.
 5. Protect API with Introspection lookup
@@ -49,21 +56,21 @@ API Connect defines an interface with the third-party introspection that require
 	* In the **Security** section, create a new security requirement (click +) and select  **api-key-1 (API Key)** and  **oauth-third-party (OAuth)**. Click the up array to move it as **Option 1**.
 	* Click Save.
 
-![alt](images/introspect_url.jpg)
+		![alt](images/introspect_url.jpg)
 	
 6. Obtain an access token from the Third-Party OAuth provider (using the resource owner grant type) using Postman.
 	* Open the request called `OAuth Password`. Select the **Body** link and notice that a default client id of `default` and client secret of `SECRET` is pre-configured. Adjust the values of your endpoint to `https://127.0.0.1:4001/third-party/oauth2/token`.
 	* Submit the request and validate that you get back an access token.
-	```
-	{
-		"token_type": "bearer",
-		"access_token": "<sanitized>",
-		"expires_in": 3600,
-		"scope": "weather",
-		"refresh_token": "<sanitized>"
-	}
-	```
-	4. Copy the access token so it remains on your clipboard. You are now ready to call the Weather API!
+		```
+		{
+			"token_type": "bearer",
+			"access_token": "<sanitized>",
+			"expires_in": 3600,
+			"scope": "weather",
+			"refresh_token": "<sanitized>"
+		}
+		```
+	* Copy the access token so it remains on your clipboard. You are now ready to call the Weather API!
 7. Open the Weather request and select the **Headers** tab. Click **Send** to validate that the request is successful. Optionally, enter the previously copied access token into the Authorization header field if you don't want to use the variable `{{access_code}}`.
 	```
 	{
